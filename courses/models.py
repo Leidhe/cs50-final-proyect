@@ -15,7 +15,9 @@ class Category(models.Model):
 class Course(models.Model):
     name = models.CharField(max_length=64)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_author")
+    image = models.FileField(upload_to='images/courses/%Y/%m/%d/')
     categories = models.ManyToManyField(Category, related_name="course_category")
     description = models.CharField(max_length=100, help_text="Write a description")
+    content = models.TextField()
 
 

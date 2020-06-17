@@ -1,8 +1,7 @@
 {% extends 'courses/base.html' %}
 {% load static %}
 {% block style %}
-<link rel="stylesheet" href="{% static 'css/index.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 <style>
     .bd-placeholder-img {
@@ -30,45 +29,55 @@
             <form class="bar-search" method="POST" action="{% url 'search_bar' %}">
                 {% csrf_token %}
                 <div class="input-group">
-                    <input class="form-control" type="search" name="search" placeholder="Search..">
-                    <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i> </button>
+                    <input class="form-control" type="search" id="input-search" name="search" placeholder="Search..">
+                    <button class="btn btn-outline-primary" id="main-search" type="submit"><i class="fa fa-search"></i> </button>
                 </div>
             </form>
         </div>
     </div>
+    <div id="main">
+        <div class="container">
+            <h1 class="title"><strong>Search results for {{text}}</strong></h1>
+            {% if courses_by_name or courses_by_creator %}
+            <div class="row">
+                {% for course in courses_by_name %}
+                <div class="col-md-4">
+                    <div class="card border-primary mb-3 card-category" style="max-width: 20rem;">
+                        <div class="card-header">{{course.author}}</div>
+                        <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
+                            alt="Card image">
+                        <div class="card-body">
+                            <h4 class="card-title">{{course.name}}</h4>
+                            <p class="card-text">{{course.description}}</p>
+                        </div>
+                        {{ course.id|json_script:course.id }}
 
-    <div class="container">
-        <h1 class="title"><strong>Search results for {{text}}</strong></h1>
-        {% if courses_by_name or courses_by_creator %}
-        <div class="row">
-            {% for course in courses_by_name %}
-            <div class="col-md-4">
-                <div class="card border-primary mb-3" style="max-width: 20rem;">
-                    <div class="card-header">{{course.author}}</div>
-                    <div class="card-body">
-                        <h4 class="card-title">{{course.name}}</h4>
-                        <p class="card-text">{{course.description}}</p>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-            {% for course in courses_by_creator %}
-            <div class="col-md-4">
-                <div class="card border-primary mb-3" style="max-width: 20rem;">
-                    <div class="card-header">{{course.author}}</div>
-                    <div class="card-body">
-                        <h4 class="card-title">{{course.name}}</h4>
-                        <p class="card-text">{{course.description}}</p>
+                {% endfor %}
+                {% for course in courses_by_creator %}
+                <div class="col-md-4">
+                    <div class="card border-primary mb-3 card-category" name="hola" style="max-width: 20rem;">
+                        <div class="card-header">{{course.author}}</div>
+                        <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
+                            alt="Card image">
+                        <div class="card-body">
+                            <h4 class="card-title">{{course.name}}</h4>
+                            <p class="card-text">{{course.description}}</p>
+                        </div>
+                        {{ mydata|json_script:"course.id" }}
+
                     </div>
+                    
                 </div>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center;" class="alert alert-dismissible alert-warning">
+                    <h4 class="alert-heading">There is no result for your search!</h4>
+                    <p class="mb-0">Please do another search</p>
+                </div>
+                {% endif %}
             </div>
-            {% endfor %}
-            {% else %}
-            <div style="text-align: center;" class="alert alert-dismissible alert-warning">
-                <h4 class="alert-heading">There is no result for your search!</h4>
-                <p class="mb-0">Please do another search</p>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>

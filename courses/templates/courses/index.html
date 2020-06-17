@@ -32,8 +32,8 @@
       <form class="bar-search" method="POST" action="{% url 'search_bar' %}">
         {% csrf_token %}
         <div class="input-group">
-          <input class="form-control" type="search" name="search" placeholder="Search..">
-          <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i> </button>
+          <input class="form-control" type="search" id="input-search" name="search" placeholder="Search..">
+          <button class="btn btn-outline-primary" id="main-search" type="submit"><i class="fa fa-search"></i> </button>
         </div>
       </form>
     </div>
