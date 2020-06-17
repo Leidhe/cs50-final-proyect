@@ -1,0 +1,61 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+  .bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+  }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">Learning Fast!</h1>
+      <p>This application will help you learn easily and quickly. Here you can sign up for courses or create your own
+        courses. Start now!
+      </p>
+      <form class="bar-search" method="POST" action="{% url 'search_bar' %}">
+        {% csrf_token %}
+        <div class="input-group">
+          <input class="form-control" type="search" name="search" placeholder="Search..">
+          <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i> </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="container">
+      <!-- Example row of columns -->
+      {% if categories %}
+      <h1 class="title">Search by category</h1>
+      <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4">
+          <p style="text-align: center;"><a class="btn btn-secondary category" href="#" role="button">{{category.name}}
+              &raquo;</a></p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h1 class="title">There aren't categories</h1>
+        {% endif %}
+      </div>
+    </div> <!-- /container -->
+  </div>
+</div>
+{% endblock %}
