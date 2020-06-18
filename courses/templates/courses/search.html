@@ -26,11 +26,12 @@
     <div class="jumbotron">
         <div class="container">
             <h1 class="text-primary display-4"><strong>What do you want to learn?</strong></h1>
-            <form class="bar-search" method="POST" action="{% url 'search_bar' %}">
+            <form class="bar-search" method="POST" action="{% url 'search' %}">
                 {% csrf_token %}
                 <div class="input-group">
                     <input class="form-control" type="search" id="input-search" name="search" placeholder="Search..">
-                    <button class="btn btn-outline-primary" id="main-search" type="submit"><i class="fa fa-search"></i> </button>
+                    <button class="btn btn-outline-primary" id="main-search" type="submit"><i class="fa fa-search"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -42,33 +43,33 @@
             <div class="row">
                 {% for course in courses_by_name %}
                 <div class="col-md-4">
-                    <div class="card border-primary mb-3 card-category" style="max-width: 20rem;">
-                        <div class="card-header">{{course.author}}</div>
-                        <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
-                            alt="Card image">
-                        <div class="card-body">
-                            <h4 class="card-title">{{course.name}}</h4>
-                            <p class="card-text">{{course.description}}</p>
+                    <a class="course-link" href="{% url 'course' course.id %}">
+                        <div class="card border-primary mb-3 card-category" style="max-width: 20rem;">
+                            <div class="card-header">{{course.author}}</div>
+                            <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
+                                alt="Card image">
+                            <div class="card-body">
+                                <h4 class="card-title">{{course.name}}</h4>
+                                <p class="card-text">{{course.description}}</p>
+                            </div>
                         </div>
-                        {{ course.id|json_script:course.id }}
-
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
                 {% for course in courses_by_creator %}
                 <div class="col-md-4">
-                    <div class="card border-primary mb-3 card-category" name="hola" style="max-width: 20rem;">
-                        <div class="card-header">{{course.author}}</div>
-                        <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
-                            alt="Card image">
-                        <div class="card-body">
-                            <h4 class="card-title">{{course.name}}</h4>
-                            <p class="card-text">{{course.description}}</p>
-                        </div>
-                        {{ mydata|json_script:"course.id" }}
+                    <a href="{% url 'course' course.id %}">
 
-                    </div>
-                    
+                        <div class="card border-primary mb-3 card-category" name="hola" style="max-width: 20rem;">
+                            <div class="card-header">{{course.author}}</div>
+                            <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
+                                alt="Card image">
+                            <div class="card-body">
+                                <h4 class="card-title">{{course.name}}</h4>
+                                <p class="card-text">{{course.description}}</p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
                 {% endfor %}
                 {% else %}

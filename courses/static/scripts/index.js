@@ -38,27 +38,4 @@ document.addEventListener('DOMContentLoaded', () => {
         else
             document.querySelector('#search-navbar').disabled = true;
     };
-
-    $('.card-category').on("click", function () {
-        var child = $("script", this);
-        var id = child.attr('id')
-        var value = JSON.parse(document.getElementById(id).textContent);
-        console.log(value)
-
-        $.ajax({
-            type: "GET",
-            url: "/course/category_id",
-            data: {
-                "category_id": value
-            },
-            success: function (data) {
-                console.log("success");
-                console.log(data);
-            },
-            failure: function (data) {
-                console.log("failure");
-                console.log(data);
-            },
-        });
-    });
 });

@@ -31,3 +31,12 @@
     margin-bottom: 2%;
 }
 
+a.course-link {
+    text-decoration: none;
+    color: black
+}
+
+a.course-link:hover {
+    color: grey;
+}
+

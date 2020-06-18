@@ -29,7 +29,7 @@
       <p>This application will help you learn easily and quickly. Here you can sign up for courses or create your own
         courses. Start now!
       </p>
-      <form class="bar-search" method="POST" action="{% url 'search_bar' %}">
+      <form class="bar-search" method="POST" action="{% url 'search' %}">
         {% csrf_token %}
         <div class="input-group">
           <input class="form-control" type="search" id="input-search" name="search" placeholder="Search..">
