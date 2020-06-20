@@ -40,16 +40,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'django.contrib.sites', 
+    'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'sorl.thumbnail',
+    'ckeditor',
+    'ckeditor_uploader',
 
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,6 +64,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'LearningFast.urls'
+
+
+AWS_QUERYSTRING_AUTH = False
+
 
 TEMPLATES = [
     {
@@ -128,16 +134,23 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, '/static/'),
+]
+STATIC_ROOT = 'static/'
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-#Login with Google
+MEDIA_ROOT = 'media/'
+MEDIA_URL = '/media/'
+
+CKEDITOR_UPLOAD_PATH = "media/"
+
+
+# Login with Google
 AUTHENTICATION_BACKENDS = (
- 'django.contrib.auth.backends.ModelBackend',
- 'allauth.account.auth_backends.AuthenticationBackend',
- )
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
@@ -152,4 +165,12 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         }
     }
+}
+
+# CKEDITOR
+CKEDITOR_CONFIGS = {
+    'default': {
+        'width': 'auto',
+
+    },
 }

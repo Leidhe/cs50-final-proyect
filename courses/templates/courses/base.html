@@ -38,12 +38,19 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'index' %}">Home<span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'search' %}">Search Courses</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categories</a>
+                        <ul class="dropdown-menu fade-up">
+                            {% for category in categories %}
+                            <li><a class="dropdown-item" href="{% url 'search_category' category.id %}"> {{category.name}}</a></li>
+                            {% endfor %}
+                        </ul>
+
                 </li>
-                
+
                 {% if request.user.is_authenticated %}
-               
+
                 <li class="nav-item"><a href=" {% url 'logout' %}" class="nav-link">Logout</a></li>
 
                 <li class="nav-item dropdown">
@@ -51,8 +58,8 @@
                         aria-haspopup="true" aria-expanded="false">{{request.user.username}}</a>
                     <div class="dropdown-menu" aria-labelledby="dropdown01">
                         <a class="dropdown-item" href="#">My Courses</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="{% url 'teacher' %}">Teacher</a>
+                        <a class="dropdown-item" href="#">My Account</a>
                     </div>
                 </li>
                 {% else %}
@@ -63,15 +70,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'register' %}">Register</a>
                 </li>
-
                 {% endif %}
 
-                
+
             </ul>
             <form class="form-inline my-2 my-lg-0" method="POST" action="{% url 'search' %}">
                 {% csrf_token %}
-                <input class="form-control mr-sm-2" id="input-search-navbar" type="search" name="search" placeholder="Search..">
-                <button class="btn btn-secondary my-2 my-sm-0" id="search-navbar" type="submit"><i class="fa fa-search"></i></button>
+                <input class="form-control mr-sm-2" id="input-search-navbar" type="search" name="search"
+                    placeholder="Search..">
+                <button class="btn btn-secondary my-2 my-sm-0" id="search-navbar" type="submit"><i
+                        class="fa fa-search"></i></button>
             </form>
         </div>
     </nav>
