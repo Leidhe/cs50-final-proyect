@@ -1,0 +1,64 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="sidebar">
+    <a href="#home">Students</a>
+    <a href="{% url 'edit_course' course.id %}">Configuration</a>
+    <a href="{% url 'course' course.id %}">Presentation</a>
+
+</div>
+<div id="wrap">
+
+    <div id="main">
+        <div class="content">
+            <a href="{% url 'create_course' %}" class="btn btn-success right">
+                <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z" />
+                    <path fill-rule="evenodd" d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
+                </svg>
+                Add a new unit</a>
+            <h1 class="title-units">Units</h1>    
+            {% if units %}
+            {% for unit in units %}
+            <div class="units text-center">
+                <button class="button-units btn-lg" aria-haspopup="true" aria-expanded="false" value={{unit.id}} onclick="toggle(this)">
+                    <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                    Unit 1
+                </button>
+    
+            </div>
+            <div style="display: none;" id={{unit.id}}>
+                This is my DIV element.
+            </div> 
+            {% endfor %}
+            {% else %}
+            <h2 class="title-nounits" > There is no units. Add a new unit!</h2>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from .models import Category, Course
-from .forms import CourseForm
+from .forms import CourseForm, CourseEditForm
 
 
 def index(request):
@@ -100,8 +100,36 @@ def create_course(request):
             course.save()
             return redirect(reverse('course', args=[course.pk]))
         return render(request, "courses/error.html", {'error': "Method not allowed", })
- 
 
+
+def edit_course(request, course_id):
+    if request.method == "GET":
+        instance = get_object_or_404(Course, id=course_id)
+        form = CourseEditForm(instance=instance)
+        return render(request, 'courses/editcourse.html', {'form': form})
+    else:
+        instance = get_object_or_404(Course, id=course_id)
+        form = CourseEditForm(request.POST or None,
+                              request.FILES or None, instance=instance)
+        if form.is_valid():
+            form.save()
+            context = {
+                'course': instance
+            }
+            return render(request, 'courses/course_settings.html', context)
+        return render(request, "courses/error.html", {'error': "Method not allowed", })
+
+
+def course_details(request, course_id):
+    try:
+        course = Course.objects.get(pk=course_id)
+    except Course.DoesNotExist:
+        return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+
+    context = {
+        'course': course
+    }
+    return render(request, 'courses/course_settings.html', context)
 
 
 def search_categories():
