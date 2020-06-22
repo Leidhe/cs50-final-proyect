@@ -36,7 +36,7 @@
 </head>
 
 <body class="text-center">
-    <form class="form-signin">
+    <form class="form-signin" action="{% url 'register' %}" method="POST">
         {% csrf_token %}
         <img class="mb-4" src='{% static "images/logo.png" %}' alt="Logo" width="300" height="80">
         <h1 class="h3 mb-3 font-weight-normal">Register</h1>
