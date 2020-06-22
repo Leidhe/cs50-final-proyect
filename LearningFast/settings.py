@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'ckeditor',
     'ckeditor_uploader',
+    'courses.templatetags',
 
 ]
 
@@ -81,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            
         },
     },
 ]
@@ -135,7 +137,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '/static/'),
+    os.path.join(BASE_DIR, 'staticfiles/'),
 ]
 STATIC_ROOT = 'static/'
 STATIC_URL = '/static/'
@@ -171,6 +173,23 @@ SOCIALACCOUNT_PROVIDERS = {
 CKEDITOR_CONFIGS = {
     'default': {
         'width': 'auto',
-
+        'removePlugins': 'stylesheetparser',
+        'extraPlugins': ','.join([
+            'codesnippet',
+            'div',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'autogrow',
+            # 'devtools',
+            'widget',
+            'lineutils',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'elementspath',
+            'html5video',
+            'widgetselection',
+        ]),
     },
 }

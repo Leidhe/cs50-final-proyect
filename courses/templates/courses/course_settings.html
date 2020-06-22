@@ -1,5 +1,6 @@
 {% extends 'courses/base.html' %}
 {% load static %}
+{% load custom_tags %}
 {% block style %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 
@@ -23,6 +24,7 @@
 
 {% block main %}
 <div class="sidebar">
+    <span style="float:none; padding-top: 30px; display: block;"><strong>{{course.name}}</strong></span>
     <a href="#home">Students</a>
     <a href="{% url 'edit_course' course.id %}">Configuration</a>
     <a href="{% url 'course' course.id %}">Presentation</a>
@@ -32,7 +34,7 @@
 
     <div id="main">
         <div class="content">
-            <a href="{% url 'create_course' %}" class="btn btn-success right">
+            <a href="{% url 'create_unit' course.id%}" class="btn btn-success right">
                 <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd"
@@ -40,22 +42,46 @@
                     <path fill-rule="evenodd" d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
                 </svg>
                 Add a new unit</a>
-            <h1 class="title-units">Units</h1>    
+            <h1 class="title-units">Units</h1>
             {% if units %}
             {% for unit in units %}
             <div class="units text-center">
-                <button class="button-units btn-lg" aria-haspopup="true" aria-expanded="false" value={{unit.id}} onclick="toggle(this)">
+                <button class="button-units btn-lg" aria-haspopup="true" aria-expanded="false" value={{unit.id}}
+                    onclick="toggle(this)">
                     <span class="fa fa-chevron-right" aria-hidden="true"></span>
-                    Unit 1
+                    {{unit.name}}
+                    <a class="btn btn-info" href="{% url 'edit_unit' course.id unit.id %}">Edit</a>
+
                 </button>
-    
+
             </div>
             <div style="display: none;" id={{unit.id}}>
-                This is my DIV element.
-            </div> 
+                {% for section in sections|in_unit:unit.id %}
+
+                <span>{{section.name}} </span>
+                <span>{{section.content | safe}}</span>
+
+                {% endfor %}
+                <a href="{% url 'create_section' course.id unit.id %}">
+                    <h5><svg class="bi bi-plus-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z" />
+                    </svg>
+                    Add a section</h5>
+                </a>
+                <a href="#">
+                    <h5><svg class="bi bi-plus-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z" />
+                    </svg>
+                    Add a task</h5>
+                </a>
+            </div>
             {% endfor %}
             {% else %}
-            <h2 class="title-nounits" > There is no units. Add a new unit!</h2>
+            <h2 class="title-nounits"> There is no units. Add a new unit!</h2>
             {% endif %}
         </div>
     </div>

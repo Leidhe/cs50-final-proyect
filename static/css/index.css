@@ -31,6 +31,17 @@
     margin-bottom: 2%;
 }
 
+.title-units {
+    text-align: center;
+    margin-bottom: 2%;
+}
+
+.title-nounits {
+    text-align: center;
+    margin-bottom: 2%;
+    margin-right: 10%;
+}
+
 a.course-link {
     text-decoration: none;
     color: black
@@ -40,3 +51,79 @@ a.course-link:hover {
     color: grey;
 }
 
+a.right {
+    float: right;
+    margin-right: 20px;
+}
+
+.units {
+   margin-right: 10%;
+}
+
+.button-units {
+    display: block;
+    padding: 10px 0 10px 2px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    margin: 0;
+    background: none;
+ }
+
+.sidebar {
+    margin: 0;
+    padding: 0;
+    width: 200px;
+    background-color: #f1f1f1;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}
+
+.sidebar a {
+    display: block;
+    color: black;
+    padding: 16px;
+    text-decoration: none;
+}
+
+.sidebar a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.sidebar a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}
+
+div.content {
+    margin-top: 30px;
+    margin-left: 200px;
+    padding: 1px 16px;
+}
+
+@media screen and (max-width: 700px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .sidebar a {
+        float: left;
+    }
+    div.content {
+        margin-left: 0;
+    }
+
+    .title-units {
+        text-align: left;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .sidebar a {
+        text-align: center;
+        float: none;
+    }
+}

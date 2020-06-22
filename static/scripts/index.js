@@ -38,4 +38,30 @@ document.addEventListener('DOMContentLoaded', () => {
         else
             document.querySelector('#search-navbar').disabled = true;
     };
+
+    $('#sub-menu').on('change', function () {
+        var url = $(this).val(); // get selected value
+        if (url) { // require a URL
+            window.location = url; // redirect
+        }
+        return false;
+    });
+
+
 });
+
+function toggle(button) {
+
+    var classbutton = $(button).val();
+    var span = $(button).find("span")
+    var x = document.getElementById(classbutton);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+        $(span).addClass("fa-rotate-90")
+
+    } else {
+        x.style.display = "none";
+        $(span).removeClass();
+        $(span).addClass("fa fa-chevron-right")
+    }
+}
