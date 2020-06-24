@@ -1,8 +1,9 @@
 from django import forms
 from django.shortcuts import reverse
-from .models import Course, Section, File, Task, Unit, Homework, File
+from .models import Course, Section, Task, Unit, Homework
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from multiupload.fields import MultiFileField, MultiMediaField, MultiImageField
 
 
 class CourseForm(forms.ModelForm):
@@ -75,6 +76,7 @@ class UnitEditForm(forms.ModelForm):
             'edit_unit', kwargs={'course_id': course_id, 'unit_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
 
+
 class SectionForm(forms.ModelForm):
     class Meta:
         model = Section
@@ -92,6 +94,7 @@ class SectionForm(forms.ModelForm):
             'create_section', kwargs={'course_id': course_id, 'unit_id': unit_id})
         self.helper.add_input(Submit('submit', 'Save'))
 
+
 class SectionEditForm(forms.ModelForm):
     class Meta:
         model = Section
@@ -106,6 +109,7 @@ class SectionEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'edit_section', kwargs={'section_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -124,6 +128,7 @@ class TaskForm(forms.ModelForm):
             'create_task', kwargs={'course_id': course_id, 'unit_id': unit_id})
         self.helper.add_input(Submit('submit', 'Save'))
 
+
 class TaskEditForm(forms.ModelForm):
     class Meta:
         model = Task
@@ -139,19 +144,24 @@ class TaskEditForm(forms.ModelForm):
             'edit_task', kwargs={'task_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
 
+
 class HomeworkForm(forms.ModelForm):
     class Meta:
         model = Homework
         fields = ('grade', 'answer')
 
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id')
         task_id = kwargs.pop('task_id')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
+        self.helper = FormHelper(self)
         self.helper.form_id = 'HomeworkForm'
         self.helper.form_class = 'HomeworkForm'
         self.helper.form_method = 'POST'
         self.helper.form_action = reverse(
             'view_task', kwargs={'task_id': task_id})
         self.helper.add_input(Submit('submit', 'Save'))
+
+   

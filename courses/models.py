@@ -4,6 +4,7 @@ from sorl.thumbnail import ImageField
 from ckeditor_uploader.fields import RichTextUploadingField
 
 
+
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=64)
@@ -61,13 +62,8 @@ class Homework(models.Model):
     grade = models.IntegerField(default=0)
     answer = RichTextUploadingField()
 
-class File(models.Model):
-    title = models.CharField(max_length=255, blank=True)
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="file_author")
-    file = models.FileField(upload_to='upload/files')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+class Attachment(models.Model):
+    file = models.FileField(upload_to='uploads')
     homework = models.ForeignKey(
         Homework, on_delete=models.CASCADE)
-
 

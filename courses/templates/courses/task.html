@@ -1,8 +1,12 @@
 {% extends 'courses/base.html' %}
 {% load static %}
-{% block style %}
 {% load crispy_forms_tags %}
+{% block style %}
+<script src="{% static 'js/jquery-file-upload/js/vendor/jquery.ui.widget.js' %}"></script>
+<script src="{% static 'js/jquery-file-upload/js/jquery.iframe-transport.js' %}"></script>
+<script src="{% static 'js/jquery-file-upload/js/jquery.fileupload.js' %}"></script>
 
+<script src="{% static 'js/basic_upload.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -44,6 +48,7 @@
             </div>
 
             {% if task.author != request.user %}
+
             {% crispy form %}
             {% endif %}
         </div> <!-- /container -->

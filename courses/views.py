@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from .models import Category, Course, Unit, Section, Task, Homework, File
+from .models import Category, Course, Unit, Section, Task, Homework, Attachment
 from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm, SectionEditForm, TaskForm, TaskEditForm, HomeworkForm
+from django.views import View
+from django.http import JsonResponse
 
 
 def index(request):
@@ -206,33 +208,43 @@ def view_section(request, section_id):
         except Section.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Section doesn't exist", })
 
+
 def view_task(request, task_id):
     if request.method == "GET":
         try:
             task = Task.objects.get(pk=task_id)
+            homework = Homework.objects.filter(student=request.user, task=task_id).exists()
+
             form = HomeworkForm(user_id=request.user.id, task_id=task_id)
             context = {
                 'form': form,
-                'task': task
+                'task': task,
             }
             return render(request, "courses/task.html", context)
 
         except Task.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            
+        except Homework.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })   
     else:
         try:
             task = Task.objects.get(pk=task_id)
-            form = HomeworkForm(request.POST, user_id=request.user.id, task_id=task_id)
+            form = HomeworkForm(request.POST, request.FILES, user_id=request.user.id, task_id=task_id)
+            
+            print(form.errors)
             if form.is_valid():
+                files = request.FILES.getlist('file_field')
                 homework=form.save(commit=False)
                 homework.student=request.user
                 homework.task=task
                 homework.save()
+                for f in files:
+                    Attachment.objects.create(file=f, homework=homework)
                 return redirect('index')
 
         except Task.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Task doesn't exist", })
-
 
 def create_section(request, course_id, unit_id):
     if request.method == "GET":
@@ -374,6 +386,7 @@ def list_students(request, course_id):
             return render(request, 'courses/teacher/list_students.html', context)
         except Course.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+
 
 
 # Collect the categories to display them in the navbar
