@@ -25,7 +25,7 @@
 {% block main %}
 <div class="sidebar">
     <span style="float:none; padding-top: 30px; display: block;"><strong>{{course.name}}</strong></span>
-    <a href="#home">Students</a>
+    <a href="{% url 'list_students' course.id %}">Students</a>
     <a href="{% url 'edit_course' course.id %}">Configuration</a>
     <a href="{% url 'course' course.id %}">Presentation</a>
 
@@ -34,7 +34,7 @@
 
     <div id="main">
         <div class="content">
-            <a href="{% url 'create_unit' course.id%}" class="btn btn-success right">
+            <a href="{% url 'create_unit' course.id %}" class="btn btn-success right">
                 <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd"
@@ -50,25 +50,25 @@
                     onclick="toggle(this)">
                     <span class="fa fa-chevron-right" aria-hidden="true"></span>
                     {{unit.name}}
+                    {% if course.author == request.user %}
                     <a class="btn btn-info" href="{% url 'edit_unit' course.id unit.id %}">Edit</a>
-
+                    {% endif %}
                 </button>
 
             </div>
             <div style="display: none;" id={{unit.id}}>
                 {% for section in sections|sections_in_unit:unit.id %}
 
-                <span>{{section.name}} </span>
-                <span>{{section.content | safe}}</span>
+                <a href="{% url 'view_section' section.id %}">{{section.name}} </a>
 
                 {% endfor %}
 
                 {% for task in tasks|tasks_in_unit:unit.id %}
 
-                <span>{{task.name}} </span>
-                <span>{{task.content | safe}}</span>
+                <a href="{% url 'view_task' task.id %}">{{task.name}} </a>
 
                 {% endfor %}
+                {% if course.author == request.user %}
                 <a href="{% url 'create_section' course.id unit.id %}">
                     <h5><svg class="bi bi-plus-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
                         xmlns="http://www.w3.org/2000/svg">
@@ -85,6 +85,7 @@
                     </svg>
                     Add a task</h5>
                 </a>
+                {% endif %}
             </div>
             {% endfor %}
             {% else %}

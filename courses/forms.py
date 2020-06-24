@@ -1,6 +1,6 @@
 from django import forms
 from django.shortcuts import reverse
-from .models import Course, Section, File, Task, Unit
+from .models import Course, Section, File, Task, Unit, Homework, File
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
@@ -98,15 +98,13 @@ class SectionEditForm(forms.ModelForm):
         fields = ('name', 'content')
 
     def __init__(self, *args, **kwargs):
-        course_id = kwargs.pop('course_id')
-        unit_id = kwargs.pop('unit_id')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = 'editsectionForm'
         self.helper.form_class = 'editsectionForm'
         self.helper.form_method = 'POST'
         self.helper.form_action = reverse(
-            'edit_section', kwargs={'course_id': course_id, 'unit_id': unit_id, 'section_id': self.instance.id})
+            'edit_section', kwargs={'section_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
 
 class TaskForm(forms.ModelForm):
@@ -132,13 +130,28 @@ class TaskEditForm(forms.ModelForm):
         fields = ('name', 'content')
 
     def __init__(self, *args, **kwargs):
-        course_id = kwargs.pop('course_id')
-        unit_id = kwargs.pop('unit_id')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = 'edit_taskForm'
         self.helper.form_class = 'edit_taskForm'
         self.helper.form_method = 'POST'
         self.helper.form_action = reverse(
-            'edit_task', kwargs={'course_id': course_id, 'unit_id': unit_id, 'task_id': self.instance.id})
+            'edit_task', kwargs={'task_id': self.instance.id})
+        self.helper.add_input(Submit('submit', 'Save'))
+
+class HomeworkForm(forms.ModelForm):
+    class Meta:
+        model = Homework
+        fields = ('grade', 'answer')
+
+    def __init__(self, *args, **kwargs):
+        user_id = kwargs.pop('user_id')
+        task_id = kwargs.pop('task_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'HomeworkForm'
+        self.helper.form_class = 'HomeworkForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'view_task', kwargs={'task_id': task_id})
         self.helper.add_input(Submit('submit', 'Save'))

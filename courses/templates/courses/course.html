@@ -21,12 +21,47 @@
 </style>
 {% endblock %}
 {% block main %}
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Enroll</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span>Do you really want to enroll in this course?</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{% url 'enroll_course' course.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
 <div id="wrap">
     <div class="jumbotron">
         <div class="container">
+            {% if error%}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
             <h1 class="display-4" style="text-align: center;"><strong>{{course.name}}</strong></h1>
             <p style="text-align: center;">{{course.description}}
             </p>
+            <div class="button-center">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+                    Enroll
+                </button>
+            </div>
+
         </div>
     </div>
     <div id="main">

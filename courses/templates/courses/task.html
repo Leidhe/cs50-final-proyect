@@ -1,0 +1,52 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% block style %}
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main">
+        <div class="container">
+            {% if task.author == request.user %}
+
+            <a href="{% url 'edit_task' task.id %}" class="btn btn-success right">
+                <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z" />
+                    <path fill-rule="evenodd" d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
+                </svg>
+                Edit task</a>
+            {% endif %}
+            <h1 class="title">{{task.name}}</h1>
+            <div>
+                {{task.content | safe}}
+            </div>
+
+            {% if task.author != request.user %}
+            {% crispy form %}
+            {% endif %}
+        </div> <!-- /container -->
+    </div>
+</div>
+{% endblock %}

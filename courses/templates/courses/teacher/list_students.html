@@ -1,0 +1,43 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% load crispy_forms_tags %}
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/teacher.css' %}">
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main" class="container">
+        {% if students.all %}
+        <h1>Students</h1>
+        <ul>
+            {% for student in students.all %}
+            console.log(student)
+            <li>{{student.username}} -- {{student.first_name}} {{student.last_name}}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h1>There are no students enrolled</h1>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -28,6 +28,7 @@ class Course(models.Model):
     description = models.CharField(
         max_length=100, help_text="Write a description")
     content = RichTextUploadingField()
+    students = models.ManyToManyField(User, related_name="courses_students")
 
 class Unit(models.Model):
     name = models.CharField(max_length=64)
@@ -42,9 +43,7 @@ class Section(models.Model):
         User, on_delete=models.CASCADE, related_name="section_author")
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name="unit_section")
-    content = RichTextUploadingField(
-        
-    )
+    content = RichTextUploadingField()
 
 class Task(models.Model):
     name = models.CharField(max_length=64)
@@ -54,6 +53,13 @@ class Task(models.Model):
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name="unit_task")
     content = RichTextUploadingField()
+    students = models.ManyToManyField(User, through='Homework')
+
+class Homework(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    grade = models.IntegerField(default=0)
+    answer = RichTextUploadingField()
 
 class File(models.Model):
     title = models.CharField(max_length=255, blank=True)
@@ -61,9 +67,7 @@ class File(models.Model):
         User, on_delete=models.CASCADE, related_name="file_author")
     file = models.FileField(upload_to='upload/files')
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    section = models.ForeignKey(
-        Section, on_delete=models.CASCADE, related_name="files_section", blank=True)
-    task = models.ForeignKey(
-        Task, on_delete=models.CASCADE, related_name="files_task", blank=True)
+    homework = models.ForeignKey(
+        Homework, on_delete=models.CASCADE)
 
 
