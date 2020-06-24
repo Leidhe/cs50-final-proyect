@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from .models import Category, Course, Unit, Section
-from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm
+from .models import Category, Course, Unit, Section, Task
+from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm, SectionEditForm, TaskForm, TaskEditForm
 
 
 def index(request):
@@ -175,7 +175,8 @@ def edit_unit(request, course_id, unit_id):
         if form.is_valid():
             try:
                 course = Course.objects.get(pk=course_id)
-                if Unit.objects.filter(name=form.cleaned_data['name'], course=course).exists():
+                unit_exists = Unit.objects.filter(name=form.cleaned_data['name'], course=course)
+                if unit_exists and unit_exists[0].id != unit_id:
                     error = 'A unit already exists in the course with that name'
                     context = {
                     'form': form,
@@ -192,6 +193,7 @@ def edit_unit(request, course_id, unit_id):
 
             
         return render(request, "courses/error.html", {'error': "Method not allowed", })
+
 
 def create_section(request, course_id, unit_id):
     if request.method == "GET":
@@ -223,7 +225,98 @@ def create_section(request, course_id, unit_id):
 
         return render(request, "courses/error.html", {'error': "Method not allowed", })
 
+def edit_section(request, course_id, unit_id, section_id):
+    if request.method == "GET":
+        instance=get_object_or_404(Section, id=section_id)
+        form=SectionEditForm(course_id=course_id, unit_id=unit_id, instance=instance)
+        return render(request, 'courses/edit_section.html', {'form': form})
+    else:
+        try:
+            instance=get_object_or_404(Section, id=section_id)
+            form = SectionEditForm(request.POST, course_id=course_id, unit_id=unit_id, instance=instance)
+            unit = Unit.objects.get(pk=unit_id)
+            if form.is_valid():
+                section_exists = Section.objects.filter(name=form.cleaned_data['name'], unit=unit)
+                if section_exists and section_exists[0].id != section_id:
+                    error = 'A section already exists in the unit with that name'
+                    context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error
+                    }
+                    return render(request, 'courses/edit_section.html', context)
+                else:
+                    section=form.save(commit=False)
+                    section.author=request.user
+                    section.unit=unit
+                    section.save()
+                    return redirect(reverse('course_details', args=[course_id]))
+        except Unit.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Unit doesn't exist", })
 
+        return render(request, "courses/error.html", {'error': "Method not allowed", })
+
+
+def create_task(request, course_id, unit_id):
+    if request.method == "GET":
+        form = TaskForm(course_id=course_id, unit_id=unit_id)
+        return render(request, 'courses/create_task.html', {'form': form})
+    else:
+        try:
+            form = TaskForm(request.POST, course_id=course_id, unit_id=unit_id)
+            unit = Unit.objects.get(pk=unit_id)
+
+            if form.is_valid():
+                if Task.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
+                    error = 'A task already exists in the unit with that name'
+                    context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error
+                    }
+                    return render(request, 'courses/create_task.html', context)
+                else:
+                    task=form.save(commit=False)
+                    task.author=request.user
+                    task.unit=unit
+                    task.save()
+                    return redirect(reverse('course_details', args=[course_id]))
+
+        except Unit.DoesNotExist:
+                    return render(request, "courses/error.html", {'error': "Unit doesn't exist", })
+
+        return render(request, "courses/error.html", {'error': "Method not allowed", })
+
+def edit_task(request, course_id, unit_id, task_id):
+    if request.method == "GET":
+        instance=get_object_or_404(Task, id=task_id)
+        form=TaskEditForm(course_id=course_id, unit_id=unit_id, instance=instance)
+        return render(request, 'courses/edit_task.html', {'form': form})
+    else:
+        try:
+            instance=get_object_or_404(Task, id=task_id)
+            form = TaskEditForm(request.POST, course_id=course_id, unit_id=unit_id, instance=instance)
+            unit = Unit.objects.get(pk=unit_id)
+            if form.is_valid():
+                task_exists = Section.objects.filter(name=form.cleaned_data['name'], unit=unit)
+                if task_exists and task_exists[0].id != section_id:
+                    error = 'A section already exists in the unit with that name'
+                    context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error
+                    }
+                    return render(request, 'courses/edit_task.html', context)
+                else:
+                    task=form.save(commit=False)
+                    task.author=request.user
+                    task.unit=unit
+                    task.save()
+                    return redirect(reverse('course_details', args=[course_id]))
+        except Unit.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Unit doesn't exist", })
+
+        return render(request, "courses/error.html", {'error': "Method not allowed", })
 
 # Collect the categories to display them in the navbar
 def search_categories():

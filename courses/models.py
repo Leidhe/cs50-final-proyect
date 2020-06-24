@@ -50,7 +50,7 @@ class Task(models.Model):
     name = models.CharField(max_length=64)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="task_author")
-    grade = models.IntegerField()
+    #grade = models.IntegerField(default=0)
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name="unit_task")
     content = RichTextUploadingField()

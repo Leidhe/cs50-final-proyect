@@ -13,6 +13,10 @@ urlpatterns = [
     path('teacher/create_unit/<int:course_id>', views.create_unit, name='create_unit'),
     path('teacher/edit_unit/<int:course_id>/<int:unit_id>', views.edit_unit, name='edit_unit'),
     path('teacher/create_section/<int:course_id>/<int:unit_id>', views.create_section, name='create_section'),
+    path('teacher/edit_section/<int:course_id>/<int:unit_id>/<int:section_id>', views.edit_section, name='edit_section'),
+    path('teacher/create_task/<int:course_id>/<int:unit_id>', views.create_task, name='create_task'),
+    path('teacher/edit_task/<int:course_id>/<int:unit_id>/<int:task_id>', views.edit_task, name='edit_task'),
+
 
 
 

@@ -1,0 +1,56 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% load crispy_forms_tags %}
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/teacher.css' %}">
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main" class="container">
+
+        <h1>Edit Section</h1>
+
+        {% if error%}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if form.errors %}
+        <!-- Error messaging -->
+        <div class="alert alert-danger" role="alert">
+            <ul>
+                {% for field in form %}
+                {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- /Error messaging -->
+        {% endif %}
+
+        
+        {% crispy form %}
+
+    </div>
+</div>
+{% endblock %}

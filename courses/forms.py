@@ -92,3 +92,53 @@ class SectionForm(forms.ModelForm):
             'create_section', kwargs={'course_id': course_id, 'unit_id': unit_id})
         self.helper.add_input(Submit('submit', 'Save'))
 
+class SectionEditForm(forms.ModelForm):
+    class Meta:
+        model = Section
+        fields = ('name', 'content')
+
+    def __init__(self, *args, **kwargs):
+        course_id = kwargs.pop('course_id')
+        unit_id = kwargs.pop('unit_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'editsectionForm'
+        self.helper.form_class = 'editsectionForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'edit_section', kwargs={'course_id': course_id, 'unit_id': unit_id, 'section_id': self.instance.id})
+        self.helper.add_input(Submit('submit', 'Save'))
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ('name', 'content')
+
+    def __init__(self, *args, **kwargs):
+        course_id = kwargs.pop('course_id')
+        unit_id = kwargs.pop('unit_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'taskForm'
+        self.helper.form_class = 'taskForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'create_task', kwargs={'course_id': course_id, 'unit_id': unit_id})
+        self.helper.add_input(Submit('submit', 'Save'))
+
+class TaskEditForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ('name', 'content')
+
+    def __init__(self, *args, **kwargs):
+        course_id = kwargs.pop('course_id')
+        unit_id = kwargs.pop('unit_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'edit_taskForm'
+        self.helper.form_class = 'edit_taskForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'edit_task', kwargs={'course_id': course_id, 'unit_id': unit_id, 'task_id': self.instance.id})
+        self.helper.add_input(Submit('submit', 'Save'))

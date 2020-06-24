@@ -190,6 +190,7 @@ CKEDITOR_CONFIGS = {
             'elementspath',
             'html5video',
             'widgetselection',
+            'filebrowser',
         ]),
     },
 }
