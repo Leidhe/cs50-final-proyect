@@ -2,11 +2,6 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block style %}
-<script src="{% static 'js/jquery-file-upload/js/vendor/jquery.ui.widget.js' %}"></script>
-<script src="{% static 'js/jquery-file-upload/js/jquery.iframe-transport.js' %}"></script>
-<script src="{% static 'js/jquery-file-upload/js/jquery.fileupload.js' %}"></script>
-
-<script src="{% static 'js/basic_upload.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -48,10 +43,75 @@
             </div>
 
             {% if task.author != request.user %}
+            {% if homework %}
+            {% if homework.graded %}
+            <span>Grade: {{homework.grade}}</span>
+            {% else %}
+            <span>Grade: Not graded</span>
+            {% endif %}
+            {% endif %}
 
             {% crispy form %}
+
+            {% for file in list_files %}
+            <span>{{ file.file.name }}</span>
+            {% endfor %}
+            {% else %}
+            {% if students.all %}
+            <h1>Students</h1>
+            <ul>
+                {% for homework in students.all %}
+                <li>
+                    <a href="{% url 'correction' homework.student.id task.id homework.id %}">
+                        {{homework.student.username}} -- {{homework.student.first_name}}
+                        {{homework.student.last_name}}</a></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <h1>No student has submitted the task yet</h1>
             {% endif %}
+
+            {% endif %}
+
+
         </div> <!-- /container -->
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        let div = document.querySelector("#div_id_file_field");
+        let form = document.querySelector("#HomeworkEditForm");
+        var label = document.createElement("label");
+        var ul = document.createElement("ul");
+
+        label.innerHTML = "Uploaded files"
+
+        var list = {{ list_files | safe}}
+
+        var files = document.createElement("div");
+        files.appendChild(label);
+
+        for (file in list) {
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+
+            var string = list[file].file
+            var route = {% get_media_prefix %} + list[file].file
+        a.setAttribute('href', route)
+
+        a.innerHTML = (string).substring(8, string.length);
+
+        li.appendChild(a);
+        files.appendChild(li);
+
+    }
+
+    div.insertBefore(files, div.firstChild); 
+
+});
+
+</script>
+
 {% endblock %}

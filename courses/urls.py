@@ -25,8 +25,12 @@ urlpatterns = [
 
     #Tasks
     path('view_task/<int:task_id>', views.view_task, name="view_task"),
+    path('review_task/<int:task_id>/<int:homework_id>', views.review_task, name="review_task"),
     path('create_task/<int:course_id>/<int:unit_id>', views.create_task, name='create_task'),
     path('edit_task/<int:task_id>', views.edit_task, name='edit_task'),
+    path('correction/<int:user_id>/<int:task_id>/<int:homework_id>', views.correction, name='correction'),
+
 
     path('list_students/<int:course_id>', views.list_students, name="list_students"),
+
 ]

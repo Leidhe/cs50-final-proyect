@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from .models import Category, Course, Unit, Section, Task, Homework, Attachment
-from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm, SectionEditForm, TaskForm, TaskEditForm, HomeworkForm
+from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm, SectionEditForm, TaskForm, TaskEditForm, HomeworkForm, HomeworkEditForm, CorrectionForm
 from django.views import View
 from django.http import JsonResponse
-
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+from django.forms.models import model_to_dict
+from datetime import datetime
+from django.utils import timezone
 
 def index(request):
     if request.method == "GET":
@@ -212,39 +216,206 @@ def view_section(request, section_id):
 def view_task(request, task_id):
     if request.method == "GET":
         try:
+            now = timezone.now()
             task = Task.objects.get(pk=task_id)
-            homework = Homework.objects.filter(student=request.user, task=task_id).exists()
+            homework = Homework.objects.filter(student=request.user, task=task_id)
 
-            form = HomeworkForm(user_id=request.user.id, task_id=task_id)
-            context = {
-                'form': form,
+            if task.end_date > now or request.user == task.author:
+
+                if homework:
+                    homework_id = homework[0].id
+                    return redirect('review_task', task_id = task_id, homework_id = homework_id) 
+
+                form = HomeworkForm(user_id=request.user.id, task_id=task_id)
+                list_students = Homework.objects.filter(task = task)
+                context = {
+                    'form': form,
+                    'task': task,
+                    'students': list_students,
+                }
+                return render(request, "courses/task.html", context)
+            
+            elif task.end_date < now and homework:
+                unit = task.unit
+                course = unit.course
+                homework = homework[0]
+                list_files = list(Attachment.objects.filter(homework=homework).values())
+                context = {
+                    'course': course,
+                    'list_files': list_files,
+                    'homework': homework,    
+                    'task': task,
+                }
+                return render(request, "courses/time_finish.html", context)
+            else:
+                unit = task.unit
+                course = unit.course
+                error = "You can't submit the task. Time's up."
+                context = {
+                'course': course,
                 'task': task,
+                'error': error
             }
-            return render(request, "courses/task.html", context)
+            return render(request, "courses/time_finish.html", context)
+
 
         except Task.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Task doesn't exist", })
-            
-        except Homework.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })   
+               
     else:
         try:
+            now = timezone.now()
             task = Task.objects.get(pk=task_id)
-            form = HomeworkForm(request.POST, request.FILES, user_id=request.user.id, task_id=task_id)
+
+            if task.end_date > now:
+                
+                form = HomeworkForm(request.POST, request.FILES, user_id=request.user.id, task_id=task_id)
+                
+                if form.is_valid():
+                    files = request.FILES.getlist('file_field')
+                    homework=form.save(commit=False)
+                    homework.student=request.user
+                    homework.task=task
+                    homework.save()
+                    for f in files:
+                        Attachment.objects.create(file=f, homework=homework)
+                    return redirect('index')
+
             
-            print(form.errors)
+            else:
+                unit = task.unit
+                course = unit.course
+                error = "You can't submit the task. Time's up."
+                context = {
+                'course': course,
+                'task': task,
+                'error': error
+            }
+            return render(request, "courses/time_finish.html", context)
+
+        except Task.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+
+def review_task(request, task_id, homework_id):
+    if request.method == "GET":
+        try:
+            now = timezone.now()
+            task = Task.objects.get(pk=task_id)
+            homework = Homework.objects.get(id=homework_id)
+
+            if task.end_date > now:
+
+                instance = homework
+
+                list_files = list(Attachment.objects.filter(homework=homework).values())
+                form = HomeworkEditForm(user_id=request.user.id, task_id=task_id, instance=instance)
+                context = {
+                        'form': form,
+                        'task': task,
+                        'list_files': list_files,
+                        'homework': homework
+                    }
+                return render(request, "courses/task.html", context)
+            else:
+                unit = task.unit
+                course = unit.course
+                error = "You can't submit the task. Time's up."
+                list_files = list(Attachment.objects.filter(homework=homework).values())
+                context = {
+                    'course': course,
+                    'list_files': list_files,
+                    'homework': homework,    
+                    'task': task,
+                    'error': error
+                }
+                return render(request, "courses/time_finish.html", context)
+
+        except Task.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+
+        except Homework.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+    
+    else:
+        try:
+            now = timezone.now()
+            homework = Homework.objects.get(id=homework_id)
+            task = Task.objects.get(pk=task_id)
+            instance = homework
+            if task.end_date > now:
+                form = HomeworkEditForm(request.POST, request.FILES, user_id=request.user.id, task_id=task_id, instance=instance)
+                if form.is_valid():
+                    files = request.FILES.getlist('file_field')
+                    homework=form.save(commit=False)
+                    homework.student=request.user
+                    homework.task=task
+                    homework.save()
+                    for f in files:
+                        Attachment.objects.create(file=f, homework=homework)
+                    return redirect('index')
+
+            else:
+                error = "You can't submit the task. Time's up."
+                unit = task.unit
+                course = unit.course
+                list_files = list(Attachment.objects.filter(homework=homework).values())
+                context = {
+                    'course': course,
+                    'list_files': list_files,
+                    'homework': homework,    
+                    'task': task,
+                    'error': error
+
+                }
+                return render(request, "courses/time_finish.html", context)
+
+
+        except Task.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+
+        except Homework.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+
+def correction(request, user_id, task_id, homework_id):
+    if request.method == "GET":
+        try:
+            task = Task.objects.get(pk=task_id)
+            homework = Homework.objects.get(pk=homework_id)
+            instance = homework
+            list_files = list(Attachment.objects.filter(homework=homework).values())
+            list_files_json = json.dumps(list_files, cls=DjangoJSONEncoder)          
+            form = CorrectionForm(user_id=user_id, task_id=task_id, instance=instance)
+            context = {
+                    'form': form,
+                    'task': task,
+                    'list_files': list_files,
+                    'homework': homework
+                }
+            return render(request, "courses/correction.html", context)
+        
+        except Task.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+
+        except Homework.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+    
+    else:
+        try:
+            homework = Homework.objects.get(id=homework_id)
+            task = Task.objects.get(pk=task_id)
+            instance = homework
+            form = CorrectionForm(request.POST, user_id=user_id, task_id=task_id, instance=instance)
             if form.is_valid():
-                files = request.FILES.getlist('file_field')
                 homework=form.save(commit=False)
-                homework.student=request.user
-                homework.task=task
+                homework.graded = True
                 homework.save()
-                for f in files:
-                    Attachment.objects.create(file=f, homework=homework)
                 return redirect('index')
 
         except Task.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+
+        except Homework.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
 
 def create_section(request, course_id, unit_id):
     if request.method == "GET":
@@ -283,7 +454,7 @@ def edit_section(request, section_id):
         return render(request, 'courses/teacher/edit_section.html', {'form': form})
     else:
         instance=get_object_or_404(Section, id=section_id)
-        form = SectionEditForm(request.POST,  instance=instance)
+        form = SectionEditForm(request.POST, instance=instance)
         if form.is_valid():
             section_exists = Section.objects.filter(name=form.cleaned_data['name'], unit=instance.unit)
             if section_exists and section_exists[0].id != section_id:
@@ -296,7 +467,6 @@ def edit_section(request, section_id):
             else:
                 form.save()
                 return redirect(reverse('view_section', args=[section_id]))
-    
 
         return render(request, "courses/error.html", {'error': "Method not allowed", })
 
@@ -387,11 +557,7 @@ def list_students(request, course_id):
         except Course.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Course doesn't exist", })
 
-
-
 # Collect the categories to display them in the navbar
 def search_categories():
     categories=Category.objects.all()
     return categories
-
-

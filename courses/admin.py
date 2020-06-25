@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Course, Unit, Section, Homework, Attachment
+from .models import Category, Course, Unit, Section, Homework, Attachment, Task
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -7,6 +7,8 @@ class CategoryAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Course)
 admin.site.register(Unit)
+admin.site.register(Task)
+
 admin.site.register(Section)
 admin.site.register(Homework)
 admin.site.register(Attachment)

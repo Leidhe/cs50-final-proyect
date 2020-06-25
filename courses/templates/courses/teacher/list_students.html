@@ -31,8 +31,8 @@
         <h1>Students</h1>
         <ul>
             {% for student in students.all %}
-            console.log(student)
-            <li>{{student.username}} -- {{student.first_name}} {{student.last_name}}</li>
+            <li>
+                <span>{{student.username}} -- {{student.first_name}} {{student.last_name}}</span></li>
             {% endfor %}
         </ul>
         {% else %}

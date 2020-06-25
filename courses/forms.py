@@ -114,7 +114,7 @@ class SectionEditForm(forms.ModelForm):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ('name', 'content')
+        fields = ('name', 'content', 'end_date')
 
     def __init__(self, *args, **kwargs):
         course_id = kwargs.pop('course_id')
@@ -132,7 +132,7 @@ class TaskForm(forms.ModelForm):
 class TaskEditForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ('name', 'content')
+        fields = ('name', 'content', 'end_date')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -148,9 +148,9 @@ class TaskEditForm(forms.ModelForm):
 class HomeworkForm(forms.ModelForm):
     class Meta:
         model = Homework
-        fields = ('grade', 'answer')
+        fields = ( 'answer', )
 
-    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required = False)
 
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id')
@@ -163,5 +163,43 @@ class HomeworkForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'view_task', kwargs={'task_id': task_id})
         self.helper.add_input(Submit('submit', 'Save'))
+
+class HomeworkEditForm(forms.ModelForm):
+    class Meta:
+        model = Homework
+        fields = ('answer',)
+
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required = False)
+
+    def __init__(self, *args, **kwargs):
+        user_id = kwargs.pop('user_id')
+        task_id = kwargs.pop('task_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'HomeworkEditForm'
+        self.helper.form_class = 'HomeworkEditForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'review_task', kwargs={'task_id': task_id, 'homework_id': self.instance.id})
+        self.helper.add_input(Submit('submit', 'Save'))
+
+
+class CorrectionForm(forms.ModelForm):
+    class Meta:
+        model = Homework
+        fields = ('grade',)
+
+    def __init__(self, *args, **kwargs):
+        user_id = kwargs.pop('user_id')
+        task_id = kwargs.pop('task_id')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'CorrectionForm'
+        self.helper.form_class = 'CorrectionForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_action = reverse(
+            'correction', kwargs={'task_id': task_id, 'user_id': user_id, 'homework_id': self.instance.id})
+        self.helper.add_input(Submit('submit', 'Save'))
+
 
    

@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     });
 
-
 });
 
 function toggle(button) {

@@ -1,0 +1,95 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main">
+        <div class="container">
+
+            <h1 class="title">{{task.name}}</h1>
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div>
+                {{task.content | safe}}
+            </div>
+            <div id="answer">
+                <p><strong>Student:</strong> {{request.user.first_name}} {{request.user.last_name}}</p>
+                <p><strong>Grade: </strong>
+                    {% if homework.graded %}
+                    {{homework.grade}}
+                    {% elif homework.graded == "False" %}
+                    Not graded
+                    {% else %}
+                    0
+                    {% endif %}
+                </p>
+                <p><strong>Answer:</strong> {{homework.answer | safe}}</p>
+                <p><strong>Attached files:</strong>
+
+                <ul id="list_files">
+
+                </ul>
+                <a href="{% url 'course_details' course.id %}" class="btn btn-primary float-left">
+                    <svg class="bi bi-arrow-left-short" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M7.854 4.646a.5.5 0 0 1 0 .708L5.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0z"/>
+                        <path fill-rule="evenodd" d="M4.5 8a.5.5 0 0 1 .5-.5h6.5a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
+                      </svg>
+                    Return to course
+                </a>            
+            </div>
+        </div> <!-- /container -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        var ul = document.querySelector("#list_files");
+        var label = document.createElement("label");
+
+        var list = {{ list_files | safe}}
+
+        for (file in list) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+
+        var string = list[file].file
+        var route = {% get_media_prefix %} + list[file].file;
+
+    a.setAttribute('href', route)
+    a.innerHTML = (string).substring(8, string.length);
+
+    li.appendChild(a);
+    ul.appendChild(li);
+        }
+});
+
+</script>
+
+{% endblock %}

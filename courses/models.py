@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from sorl.thumbnail import ImageField
 from ckeditor_uploader.fields import RichTextUploadingField
-
-
+from datetime import date
 
 # Create your models here.
 class Category(models.Model):
@@ -50,20 +49,24 @@ class Task(models.Model):
     name = models.CharField(max_length=64)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="task_author")
-    #grade = models.IntegerField(default=0)
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name="unit_task")
     content = RichTextUploadingField()
     students = models.ManyToManyField(User, through='Homework')
+    end_date = models.DateTimeField(default=date.today)
 
 class Homework(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     grade = models.IntegerField(default=0)
+    graded = models.BooleanField(default=False)
     answer = RichTextUploadingField()
 
 class Attachment(models.Model):
     file = models.FileField(upload_to='uploads')
     homework = models.ForeignKey(
         Homework, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.file.name
 
