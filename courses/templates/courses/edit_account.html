@@ -2,7 +2,6 @@
 {% load static %}
 {% load thumbnail %}
 {% load crispy_forms_tags %}
-{% load custom_tags %}
 {% block style %}
 
 <link rel="stylesheet" href="{% static 'css/teacher.css' %}">
@@ -28,21 +27,10 @@
 {% block main %}
 <div id="wrap">
     <div id="main" class="container">
-        {% if students.all %}
-        <h1>Students</h1>
-        <ul>
-            {% for student in students.all%}
-            <li>
-                {% if student|avatar:student.id %}
-                <img src="{{student | avatar:student.id}}" height="50" width="50" alt="avatar">
-                {% else %}
-                <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
-                {% endif %}                <span>{{student.username}} -- {{student.first_name}} {{student.last_name}}</span></li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <h1>There are no students enrolled</h1>
-        {% endif %}
+        <h1>Edit Account</h1>
+
+        {% crispy form %}
+
     </div>
 </div>
 {% endblock %}

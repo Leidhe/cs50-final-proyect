@@ -1,0 +1,104 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% load crispy_forms_tags %}
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/teacher.css' %}">
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main" class="container">
+        <h1>My Profile</h1>
+        <hr>
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-3">
+                <div class="text-center">
+                    {% if profile_picture.avatar.url %}
+                    <img src="{{profile_picture.avatar.url}}" class="avatar img-circle" alt="avatar">
+                    {% else %}
+                    <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- edit form column -->
+            <div class="personal-info">
+                <h3>Personal info</h3>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col d-flex">
+                                <label>First name:</label>
+                            </div>
+                            <div class="col">
+                                <span>{{user.first_name}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+
+                            <div class="col d-flex">
+                                <label>Last name:</label>
+                            </div>
+                            <div class="col">
+                                <span>{{user.last_name}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+
+                        <div class="row">
+
+                            <div class="col d-flex">
+                                <label>Email:</label>
+                            </div>
+                            <div class="col">
+                                <span>{{user.email}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+
+                        <div class="row">
+
+                            <div class="col d-flex">
+                                <label>Username:</label>
+                            </div>
+                            <div class="col">
+                                <span>{{user.username}}</span>
+                            </div>
+                        </div>
+
+                    </li>
+                </ul>
+                <div class="float_left">
+                    <a href="{% url 'edit_account' %}" type="button" class="btn btn-success">
+                        Edit account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

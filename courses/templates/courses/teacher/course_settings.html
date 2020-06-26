@@ -23,13 +23,19 @@
 {% endblock %}
 
 {% block main %}
+{% if course.author == request.user %}
 <div class="sidebar">
     <span style="float:none; padding-top: 30px; display: block;"><strong>{{course.name}}</strong></span>
     <a href="{% url 'list_students' course.id %}">Students</a>
     <a href="{% url 'edit_course' course.id %}">Configuration</a>
     <a href="{% url 'course' course.id %}">Presentation</a>
-
 </div>
+{% else %}
+<div class="sidebar">
+    <span style="float:none; padding-top: 30px; display: block;"><strong>{{course.name}}</strong></span>
+    <a href="{% url 'grades' course.id %}">Grades</a>
+</div>
+{% endif %}
 <div id="wrap">
 
     <div id="main">

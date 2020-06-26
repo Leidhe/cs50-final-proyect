@@ -1,0 +1,44 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/course.css' %}">
+
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block main %}
+<div id="wrap">
+    <div id="main">
+        <div class="container">
+            {% if courses %}
+            {% for course in courses %}
+            <div class="card">
+                <h5 class="card-header">{{course.name}}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Special title treatment</h5>
+                    <p class="card-text">{{course.description}}</p>
+                    <a href="{% url 'course_details' course.id %}" class="btn btn-primary">View Course</a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <h1>You're not enrolled in any course. Enroll in one!</h1>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

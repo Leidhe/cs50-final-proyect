@@ -28,21 +28,20 @@
 {% block main %}
 <div id="wrap">
     <div id="main" class="container">
-        {% if students.all %}
-        <h1>Students</h1>
-        <ul>
-            {% for student in students.all%}
-            <li>
-                {% if student|avatar:student.id %}
-                <img src="{{student | avatar:student.id}}" height="50" width="50" alt="avatar">
-                {% else %}
-                <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
-                {% endif %}                <span>{{student.username}} -- {{student.first_name}} {{student.last_name}}</span></li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <h1>There are no students enrolled</h1>
-        {% endif %}
+        {% for unit in units %}
+        <h1>{{unit.name}}</h1>
+
+        {% for task in tasks|tasks_in_unit:unit.id %}
+        <h2>{{task.name}}</h2>
+        <span>Grade: {{grade|grade_task:task.id}}</span>
+
+        {% endfor %}
+        {% endfor %}
+
+        
+
+        
+
     </div>
 </div>
 {% endblock %}

@@ -56,12 +56,19 @@
             <h1 class="display-4" style="text-align: center;"><strong>{{course.name}}</strong></h1>
             <p style="text-align: center;">{{course.description}}
             </p>
+            {% if student_enrolled %}
+            <div class="button-center">
+                <a href="{% url 'course_details' course.id %}" type="button" class="btn btn-success">
+                    View course
+                </a>
+            </div>
+            {% else %}
             <div class="button-center">
                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
                     Enroll
                 </button>
             </div>
-
+            {% endif %}
         </div>
     </div>
     <div id="main">

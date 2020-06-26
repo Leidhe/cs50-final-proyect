@@ -48,12 +48,22 @@
                     0
                     {% endif %}
                 </p>
-                <p><strong>Answer:</strong> {{homework.answer | safe}}</p>
+                <p><strong>Answer:</strong> 
+                    {% if homework.graded %}
+                    {{homework.answer | safe}}
+                    {% else %}
+                    None
+                    {% endif %}
+                </p>
                 <p><strong>Attached files:</strong>
-
+                {% if list_files %}   
                 <ul id="list_files">
 
                 </ul>
+                {% else %}
+                <span>None</span>
+                {% endif %}
+                </p>
                 <a href="{% url 'course_details' course.id %}" class="btn btn-primary float-left">
                     <svg class="bi bi-arrow-left-short" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M7.854 4.646a.5.5 0 0 1 0 .708L5.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0z"/>
