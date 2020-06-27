@@ -24,7 +24,7 @@
         {% if form.errors %}
         <!-- Error messaging -->
         <div class="alert alert-danger" role="alert">
-            <ul>
+            <ul style="list-style: none;">
                 {% for field in form %}
                 {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
                 {% endfor %}

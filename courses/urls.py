@@ -1,12 +1,15 @@
 from django.urls import path, re_path
 from . import views
 
+
 urlpatterns = [
     path("", views.index, name="index"),
     path("search", views.search, name="search"),
     path("search_category/<int:category_id>", views.search_by_category, name="search_category"),
     path('mycourses/', views.mycourses, name="mycourses"),
     path('myaccount/', views.account, name="myaccount"),
+    path('password/', views.change_password, name="password"),
+
     path('edit_account/', views.edit_account, name="edit_account"),
     path('course/<int:course_id>', views.course, name="course"),
     path('enroll_course/<int:course_id>', views.enroll_course, name="enroll_course"),

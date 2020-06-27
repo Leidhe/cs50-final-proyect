@@ -1,17 +1,25 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from .models import Category, Course, Unit, Section, Task, Homework, Attachment
-from users.models import UserProfile
-from django.contrib.auth.models import User
-from .forms import CourseForm, CourseEditForm, UnitForm, UnitEditForm, SectionForm, SectionEditForm, TaskForm, TaskEditForm, HomeworkForm, HomeworkEditForm, CorrectionForm
-from users.forms import UserEditForm
-from django.views import View
-from django.http import JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
 import json
-from django.forms.models import model_to_dict
 from datetime import datetime
-from django.utils import timezone
+
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
+from django.forms.models import model_to_dict
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils import timezone
+from django.views import View
+from users.forms import UserEditForm
+from users.models import UserProfile
+
+from .forms import (CorrectionForm, CourseEditForm, CourseForm,
+                    HomeworkEditForm, HomeworkForm, SectionEditForm,
+                    SectionForm, TaskEditForm, TaskForm, UnitEditForm,
+                    UnitForm)
+from .models import Attachment, Category, Course, Homework, Section, Task, Unit
 
 
 def index(request):
@@ -40,7 +48,7 @@ def account(request):
     categories = search_categories()
 
     context = {
-        'user': user,
+        'user': request.user,
         'categories': categories,
         'profile_picture': profile_picture
     }
@@ -85,6 +93,23 @@ def edit_account(request):
 
         return render(request, 'courses/edit_account.html', {'form': form, 'categories': categories})
 
+def change_password(request):
+    #Change the password
+    categories = search_categories()
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('change_password')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'courses/change_password.html', {
+        'form': form, 'categories': categories})
 
 def search(request):
     # For searches in the search bar by name or creator

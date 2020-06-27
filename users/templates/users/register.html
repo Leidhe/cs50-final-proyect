@@ -13,8 +13,8 @@
         <div class="container with-margin">
             <form class="form-signin" action="{% url 'register' %}" method="POST">
                 {% csrf_token %}
-                <img class="mb-4" src='{% static "images/logo.png" %}' alt="Logo" width="300" height="80">
-                <h1 class="h3 mb-3 font-weight-normal">Register</h1>
+                <img class="mb-4" src='{% static "images/logo.png" %}' alt="Logo" width="300" height="150">
+                <h1 class="h3 mb-3 font-weight-normal title">Register</h1>
                 {% if error_message %}
                 <div class="alert alert-danger" role="alert">
                     <p>{{error_message}}</p>
@@ -37,6 +37,8 @@
         
                 <div class="checkbox mb-3">
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button></div>
+                    <p><a href="{% url 'sign_in' %}"><h5 class="center">Do you have an account?</h5></a></p>
+
             </form>
         </div>
     </div>

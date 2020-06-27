@@ -1,3 +1,12 @@
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .category {
     box-shadow: inset 0px 1px 0px 0px #54a3f7;
     background: linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
@@ -26,6 +35,10 @@
     top: 1px;
 }
 
+.with-margin {
+    padding-top: 3%;
+}
+
 .title {
     text-align: center;
     margin-bottom: 2%;
@@ -40,6 +53,10 @@
     text-align: center;
     margin-bottom: 2%;
     margin-right: 10%;
+}
+
+.title-content {
+    margin-bottom: 2%;
 }
 
 a.course-link {
@@ -57,7 +74,7 @@ a.right {
 }
 
 .units {
-   margin-right: 10%;
+    margin-right: 10%;
 }
 
 .button-units {
@@ -68,7 +85,8 @@ a.right {
     text-align: left;
     margin: 0;
     background: none;
- }
+    font-size: 20px;
+}
 
 .sidebar {
     margin: 0;
@@ -103,7 +121,47 @@ div.content {
     padding: 1px 16px;
 }
 
-@media screen and (max-width: 700px) {
+.course_name {
+    float: none;
+    padding-top: 30px;
+    padding-left: 10px;
+    display: block;
+    font-weight: bold;
+}
+
+.list-sect-tasks {
+    list-style-type: none;
+    margin-left: 20px;
+}
+
+a.sections-tasks {
+    text-decoration: none;
+    color: black;
+    font-size: 15px;
+}
+
+a.sections-tasks:hover {
+    color: grey;
+}
+
+.li-margin {
+    margin-bottom: 5px;
+}
+
+.section-task-title {
+    border-bottom: double;
+    max-width: 200px;
+}
+
+.bottom {
+    bottom: 180px;
+}
+
+.alert{
+    text-align: center;
+}
+
+@media screen and (max-width: 500px) {
     .sidebar {
         width: 100%;
         height: auto;
@@ -111,19 +169,35 @@ div.content {
     }
     .sidebar a {
         float: left;
+        text-align: center;
+        float: none;
     }
     div.content {
         margin-left: 0;
     }
-
     .title-units {
         text-align: left;
     }
+    .course_name {
+        float: none;
+        padding-top: 30px;
+        text-align: center;
+        display: block;
+        font-weight: bold;
+    }
+    .with-margin {
+        padding-top: 5%;
+    }
+    .reduce-title {
+        font-size: 30px;
+    }
+    .personal-info-title {
+        padding-top: 10px;
+    }
 }
 
-@media screen and (max-width: 400px) {
-    .sidebar a {
-        text-align: center;
-        float: none;
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
     }
 }

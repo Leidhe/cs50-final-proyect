@@ -8,6 +8,23 @@
         <div class="container">
 
             <h1 class="title">{{task.name}}</h1>
+            {% if error%}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if form.errors %}
+            <!-- Error messaging -->
+            <div class="alert alert-danger" role="alert">
+                <ul style="list-style: none;">
+                    {% for field in form %}
+                    {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- /Error messaging -->
+            {% endif %}
             <div>
                 {{task.content | safe}}
             </div>
@@ -15,10 +32,10 @@
             <div id="answer">
                 <p><strong>Student:</strong> {{homework.student.first_name}} {{homework.student.last_name}}</p>
                 <p><strong>Answer:</strong> {{homework.answer | safe}}</p>
-                <p><strong>Attached files:</strong> 
-                
+                <p><strong>Attached files:</strong>
+
                 <ul id="list_files">
-                
+
                 </ul>
 
             </div>
@@ -36,20 +53,21 @@
         var ul = document.querySelector("#list_files");
         var label = document.createElement("label");
 
-        var list = {{ list_files | safe}}
+        var list = {{ list_files | safe
+    }}
 
         for (file in list) {
-            var li = document.createElement("li");
-            var a = document.createElement("a");
+        var li = document.createElement("li");
+        var a = document.createElement("a");
 
-            var string = list[file].file
-            var route = {% get_media_prefix %} + list[file].file;
+        var string = list[file].file
+        var route = {% get_media_prefix %} + list[file].file;
 
-            a.setAttribute('href', route)
-            a.innerHTML = (string).substring(8, string.length);
+    a.setAttribute('href', route)
+    a.innerHTML = (string).substring(8, string.length);
 
-            li.appendChild(a);
-            ul.appendChild(li);
+    li.appendChild(a);
+    ul.appendChild(li);
         }
 });
 

@@ -13,6 +13,23 @@
                 Edit task</a>
             {% endif %}
             <h1 class="title">{{task.name}}</h1>
+            {% if error%}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if form.errors %}
+            <!-- Error messaging -->
+            <div class="alert alert-danger" role="alert">
+                <ul style="list-style: none;">
+                    {% for field in form %}
+                    {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- /Error messaging -->
+            {% endif %}
             <div>
                 {{task.content | safe}}
             </div>

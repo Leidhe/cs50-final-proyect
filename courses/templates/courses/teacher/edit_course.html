@@ -13,7 +13,23 @@
 <div id="wrap">
     <div id="main" class="container with-margin">
         <h1>Edit Course</h1>
+        {% if error%}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
 
+        {% if form.errors %}
+        <!-- Error messaging -->
+        <div class="alert alert-danger" role="alert">
+            <ul style="list-style: none;">
+                {% for field in form %}
+                {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- /Error messaging -->
+        {% endif %}
         {% crispy form %}
 
     </div>

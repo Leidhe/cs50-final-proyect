@@ -157,6 +157,10 @@ a.sections-tasks:hover {
     bottom: 180px;
 }
 
+.alert{
+    text-align: center;
+}
+
 @media screen and (max-width: 500px) {
     .sidebar {
         width: 100%;
