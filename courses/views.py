@@ -11,6 +11,7 @@ import json
 from django.forms.models import model_to_dict
 from datetime import datetime
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -21,160 +22,200 @@ def index(request):
         }
     return render(request, "courses/index.html", context)
 
+
+@login_required(login_url='/login')
 def account(request):
+    # View your profile
     if request.method == "POST":
-        render(request, "courses/error.html", {'error': "Method not allowed", })
-
-    #Method GET
-    try:
-        profile_picture = None
-        user = User.objects.get(id=request.user.id)
-        profile_picture = UserProfile.objects.filter(user=request.user)
-        if profile_picture:
-            profile_picture = profile_picture[0]
         categories = search_categories()
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
 
-        context = {
-            'user': user,
-            'categories': categories,
-            'profile_picture': profile_picture
-        }
-        return render(request, "courses/account.html", context)
+    # Method GET
+    profile_picture = None
+    profile_picture = UserProfile.objects.filter(user=request.user)
 
-    except User.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "User doesn't exist", })
+    if profile_picture:
+        profile_picture = profile_picture[0]
+    categories = search_categories()
 
+    context = {
+        'user': user,
+        'categories': categories,
+        'profile_picture': profile_picture
+    }
+    return render(request, "courses/account.html", context)
+
+
+@login_required(login_url='/login')
 def edit_account(request):
+    # Edit your profile
+    categories = search_categories()
     if request.method == "GET":
         instance = get_object_or_404(User, id=request.user.id)
         form = UserEditForm(instance=instance)
-        return render(request, 'courses/edit_account.html', {'form': form})
+        return render(request, 'courses/edit_account.html', {'form': form, 'categories': categories})
+
+    # Method POST
     else:
         instance = get_object_or_404(User, id=request.user.id)
         form = UserEditForm(request.POST or None,
-                              request.FILES or None, instance=instance)
+                            request.FILES or None, instance=instance)
+
         if form.is_valid():
-            profile_picture = request.FILES.get('picture_profile')
             form.save()
+
+            # Get the new profile_picture (if any)
+            profile_picture = request.FILES.get('picture_profile')
             user_picture = UserProfile.objects.filter(user=request.user)
+
+            # If the user already has a profile picture one has been added
             if user_picture and profile_picture:
                 user_picture = user_picture[0]
                 user_picture.avatar = profile_picture
                 user_picture.save()
 
+            # If the user does not have a profile photo and a
             elif profile_picture:
-                user_picture = UserProfile(user=request.user, avatar=profile_picture)
+                user_picture = UserProfile(
+                    user=request.user, avatar=profile_picture)
                 user_picture.save()
 
             return redirect(reverse('myaccount'))
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
 
-
-# For searches in the search bar by name or creator
-# Search courses with the search engine
+        return render(request, 'courses/edit_account.html', {'form': form, 'categories': categories})
 
 
 def search(request):
-    if request.method == "POST":
-        categories = search_categories()
-        text = request.POST.get("search")
-        courses_by_name = Course.objects.filter(name__contains=text)
-        courses_by_creator = Course.objects.filter(
-            author__username__contains=text)
+    # For searches in the search bar by name or creator
+    categories = search_categories()
 
+    if request.method == "POST":
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
+
+    # Method GET
+    text = request.POST.get("search")
+    
+    #Search by name or creator
+    courses_by_name = Course.objects.filter(name__contains=text)
+    courses_by_creator = Course.objects.filter(author__username__contains=text)
+
+    context = {
+        'courses_by_name': courses_by_name,
+        'courses_by_creator': courses_by_creator,
+        'text': text,
+        'categories': categories
+    }
+    return render(request, "courses/search.html", context)
+
+
+def search_by_category(request, category_id):
+    # Search by category buttons
+    categories = search_categories()
+
+    if request.method == "POST":
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
+
+    #Method GET
+    try:
+        #Get the requested category
+        category = Category.objects.get(pk=category_id)
+        #Get all courses in the category
+        courses = Course.objects.filter(categories=category)
+        text = f'category {category.name}'
         context = {
-            'courses_by_name': courses_by_name,
-            'courses_by_creator': courses_by_creator,
+            'courses_by_name': courses,
             'text': text,
             'categories': categories
         }
         return render(request, "courses/search.html", context)
-    render(request, "courses/error.html", {'error': "Method not allowed", })
-
-# Search by category button
-
-
-def search_by_category(request, category_id):
-    if request.method == "GET":
-        try:
-            categories = search_categories()
-            category = Category.objects.get(pk=category_id)
-            courses = Course.objects.filter(categories=category)
-            text = f'category {category.name}'
-            context = {
-                'courses_by_name': courses,
-                'text': text,
-                'categories': categories
-
-            }
-            return render(request, "courses/search.html", context)
-        except Category.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Category doesn't exist", })
-
-    render(request, "courses/error.html", {'error': "Method not allowed", })
+    except Category.DoesNotExist:
+        return render(request, "courses/error.html", {'error': "Category doesn't exist", 'categories': categories})
 
 
-# Description of the selected course
+@login_required(login_url='/login')
 def course(request, course_id):
-    if request.method == "GET":
-        try:
-            categories = search_categories()
-            course = Course.objects.get(pk=course_id)
-            #If the student is already enrolled in the course, the enrollment button is different
-            student_enrolled = Course.objects.filter(id=course_id, students__id = request.user.id)
-            context = {
-                'student_enrolled': student_enrolled,
-                'course': course,
-                'categories': categories
-            }
-            return render(request, "courses/course.html", context)
+    # Description of the selected course
+    categories = search_categories()
 
-        except Course.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+    if request.method == "POST":
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
 
-    return render(request, "courses/error.html", {'error': "Method not allowed", })
+    #Method GET
+    try:
+        #Get the request course
+        course = Course.objects.get(pk=course_id)
+        # If the student is already enrolled in the course, the enrollment button is different
+        student_enrolled = Course.objects.filter(
+            id=course_id, students__id=request.user.id)
 
-# Access to the view of a teacher
-
-
-def teacher(request):
-    if request.method == "GET":
-        categories = search_categories()
-        courses_created = Course.objects.filter(author=request.user)
         context = {
-            'categories': categories,
-            'courses_created': courses_created
+            'student_enrolled': student_enrolled,
+            'course': course,
+            'categories': categories
         }
-        return render(request, "courses/teacher/teacher.html", context)
-    return render(request, "courses/error.html", {'error': "Method not allowed", })
+        return render(request, "courses/course.html", context)
 
-# When a teacher wants to create a course
+    except Course.DoesNotExist:
+        return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+
+@login_required(login_url='/login')
+def teacher(request):
+    # Access to the view of a teacher
+    categories = search_categories()
 
 
+    if request.method == "POST":
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
+
+    #Method GET
+    courses_created = Course.objects.filter(author=request.user)
+    context = {
+        'categories': categories,
+        'courses_created': courses_created
+    }
+    return render(request, "courses/teacher/teacher.html", context)
+
+
+@login_required(login_url='/login')
 def create_course(request):
+    # When a teacher want to create a course
+    categories = search_categories()
+
     if request.method == "GET":
         form = CourseForm()
-        return render(request, 'courses/teacher/create_course.html', {'form': form})
+        return render(request, 'courses/teacher/create_course.html', {'form': form, 'categories': categories})
+
     else:
         form = CourseForm(request.POST, request.FILES)
-        print(form.errors)
         if form.is_valid():
             course = form.save(commit=False)
             course.author = request.user
             course.save()
             return redirect(reverse('course', args=[course.pk]))
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-# When a teacher wants to edit a course
+        return render(request, 'courses/teacher/create_course.html', {'form': form, 'categories': categories})
 
 
+@login_required(login_url='/login')
 def edit_course(request, course_id):
-    if request.method == "GET":
-        instance = get_object_or_404(Course, id=course_id)
+    # When a teacher wants to edit a course
+    categories = search_categories()
+    instance = get_object_or_404(Course, id=course_id)
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+
+    elif request.method == "GET":
         form = CourseEditForm(instance=instance)
-        return render(request, 'courses/teacher/edit_course.html', {'form': form})
+        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories})
+
     else:
-        instance = get_object_or_404(Course, id=course_id)
         form = CourseEditForm(request.POST or None,
                               request.FILES or None, instance=instance)
         if form.is_valid():
@@ -183,36 +224,49 @@ def edit_course(request, course_id):
                 'course': instance
             }
             return render(request, 'courses/teacher/course_settings.html', context)
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-# Show the units, tasks, etc. that the course has
+        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories})
 
 
+@login_required(login_url='/login')
 def course_details(request, course_id):
+    # Show the units, tasks, etc. that the course has
+    categories = search_categories()
+
     try:
         course = Course.objects.get(pk=course_id)
         units = Unit.objects.filter(course__id=course_id)
 
     except Course.DoesNotExist:
-        return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+        return render(request, "courses/error.html", {'error': "Course doesn't exist", 'categories': categories})
 
     context = {
         'course': course,
-        'units': units
+        'units': units,
+        'categories': categories
     }
     return render(request, 'courses/teacher/course_settings.html', context)
 
-# Create a unit inside of a course.
-
-
+@login_required(login_url='/login')
 def create_unit(request, course_id):
+    # Create a unit inside of a course.
+    course = get_object_or_404(Course, id=course_id)
+
+    #If the request user is not the author of the course
+    if request.user != course.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+    
+    categories = search_categories()
+
     if request.method == "GET":
         form = UnitForm(course_id=course_id)
         context = {
             'form': form,
-            'course_id': course_id
+            'course_id': course_id,
+            'categories': categories
+
         }
         return render(request, 'courses/teacher/create_unit.html', context)
+
     else:
         try:
             form = UnitForm(request.POST, course_id=course_id)
@@ -224,7 +278,8 @@ def create_unit(request, course_id):
                     context = {
                         'form': form,
                         'course_id': course_id,
-                        'error': error
+                        'error': error,
+                        'categories': categories
                     }
                     return render(request, 'courses/teacher/create_unit.html', context)
                 else:
@@ -234,28 +289,44 @@ def create_unit(request, course_id):
                     unit.save()
                     return redirect(reverse('course_details', args=[course_id]))
 
+            context = {
+                'form': form,
+                'course_id': course_id,
+                'categories': categories
+            }
+            return render(request, 'courses/teacher/create_unit.html', context)
+
         except Course.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Course doesn't exist", })
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-# Edit a unit.
-
-
+@login_required(login_url='/login')
 def edit_unit(request, course_id, unit_id):
+    # Edit a unit.
+    instance = get_object_or_404(Unit, id=unit_id)
+    categories = search_categories()
+
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+    
+
     if request.method == "GET":
-        instance = get_object_or_404(Unit, id=unit_id)
         form = UnitEditForm(course_id=course_id, instance=instance)
-        return render(request, 'courses/teacher/edit_unit.html', {'form': form})
+        return render(request, 'courses/teacher/edit_unit.html', {'form': form, 'categories': categories})
+
+
     else:
-        instance = get_object_or_404(Unit, id=unit_id)
         form = UnitEditForm(request.POST or None,
                             request.FILES or None, course_id=course_id, instance=instance)
         if form.is_valid():
             try:
                 course = Course.objects.get(pk=course_id)
+
+                #Check that the name of the unit exists
                 unit_exists = Unit.objects.filter(
                     name=form.cleaned_data['name'], course=course)
+
                 if unit_exists and unit_exists[0].id != unit_id:
                     error = 'A unit already exists in the course with that name'
                     context = {
@@ -265,68 +336,93 @@ def edit_unit(request, course_id, unit_id):
                         'error': error
                     }
                     return render(request, 'courses/teacher/edit_unit.html', context)
-                else:
-                    form.save()
-                    return redirect(reverse('course_details', args=[course_id]))
+                
+                form.save()
+                return redirect(reverse('course_details', args=[course_id]))
+
             except Course.DoesNotExist:
-                return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+                return render(request, "courses/error.html", {'error': "Course doesn't exist", 'categories':categories })
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
+        return render(request, 'courses/teacher/edit_unit.html', {'form': form, 'categories': categories})
 
-
+@login_required(login_url='/login')
 def view_section(request, section_id):
-    if request.method == "GET":
-        try:
-            section = Section.objects.get(pk=section_id)
-            course = section.unit.course
-            context = {
-                'section':  section,
-                'course': course
-            }
-            return render(request, "courses/section.html", context)
+    #See a section
+    categories = search_categories()
 
-        except Section.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Section doesn't exist", })
+    if request.method == "POST":
+        render(request, "courses/error.html",
+               {'error': "Method not allowed", 'categories': categories})
 
+    #Method GET
+    try:
+        section = Section.objects.get(pk=section_id)
+        course = section.unit.course
+        context = {
+            'section':  section,
+            'course': course,
+            'categories': categories
+        }
+        return render(request, "courses/section.html", context)
 
+    except Section.DoesNotExist:
+        return render(request, "courses/error.html", {'error': "Section doesn't exist",'categories': categories})
+
+@login_required(login_url='/login')
 def view_task(request, task_id):
+    #View a task
+    categories = search_categories()
+    now = timezone.now()
+
     if request.method == "GET":
         try:
-            now = timezone.now()
             task = Task.objects.get(pk=task_id)
             course = task.unit.course
             homework = Homework.objects.filter(
                 student=request.user, task=task_id)
 
+            #If the task is still open or the request user is the author of the task
             if task.end_date > now or request.user == task.author:
 
+                #If the task has already been delivered(student) it is redirected to review_task
                 if homework:
                     homework_id = homework[0].id
                     return redirect('review_task', task_id=task_id, homework_id=homework_id)
 
                 form = HomeworkForm(user_id=request.user.id, task_id=task_id)
+
+                #List of students who have submitted homework (for teachers)
                 list_students = Homework.objects.filter(task=task)
+
                 context = {
                     'form': form,
                     'task': task,
                     'students': list_students,
-                    'course': course
+                    'course': course,
+                    'categories': categories
                 }
                 return render(request, "courses/task.html", context)
 
+            #If the task has been closed and the work has been submitted
             elif task.end_date < now and homework:
                 unit = task.unit
                 course = unit.course
                 homework = homework[0]
+                #The files attached to the work
                 list_files = list(Attachment.objects.filter(
                     homework=homework).values())
+
                 context = {
                     'course': course,
                     'list_files': list_files,
                     'homework': homework,
                     'task': task,
+                    'categories': categories
+
                 }
                 return render(request, "courses/time_finish.html", context)
+
+            #If the work has not been delivered on time
             else:
                 unit = task.unit
                 course = unit.course
@@ -334,24 +430,26 @@ def view_task(request, task_id):
                 context = {
                     'course': course,
                     'task': task,
-                    'error': error
+                    'error': error,
+                    'categories': categories
                 }
             return render(request, "courses/time_finish.html", context)
 
         except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", 'categories': categories})
 
     else:
         try:
-            now = timezone.now()
             task = Task.objects.get(pk=task_id)
 
+            #If the task is still open
             if task.end_date > now:
 
                 form = HomeworkForm(request.POST, request.FILES,
                                     user_id=request.user.id, task_id=task_id)
 
                 if form.is_valid():
+
                     files = request.FILES.getlist('file_field')
                     homework = form.save(commit=False)
                     homework.student = request.user
@@ -360,48 +458,76 @@ def view_task(request, task_id):
                     for f in files:
                         Attachment.objects.create(file=f, homework=homework)
                     return redirect('index')
+                
+                list_students = Homework.objects.filter(task=task)
+                course = task.unit.course
+
+                context = {
+                    'form': form,
+                    'task': task,
+                    'students': list_students,
+                    'course': course,
+                    'categories': categories
+                }
+                return render(request, "courses/task.html", context)
+
 
             else:
+                #If the work has not been delivered on time
+
                 unit = task.unit
                 course = unit.course
                 error = "You can't submit the task. Time's up."
                 context = {
                     'course': course,
                     'task': task,
-                    'error': error
+                    'error': error,
+                    'categories': categories                    
                 }
             return render(request, "courses/time_finish.html", context)
 
         except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", 'categories': categories })
 
 
+@login_required(login_url='/login')
 def review_task(request, task_id, homework_id):
+    #When the task has been sent once or more it is redirected here
+    now = timezone.now()
+    categories = search_categories()
+
+    
     if request.method == "GET":
         try:
-            now = timezone.now()
             task = Task.objects.get(pk=task_id)
             homework = Homework.objects.get(id=homework_id)
 
+            #If the task is open
             if task.end_date > now:
 
                 instance = homework
-
                 list_files = list(Attachment.objects.filter(
                     homework=homework).values())
+
                 form = HomeworkEditForm(
                     user_id=request.user.id, task_id=task_id, instance=instance)
+
                 context = {
                     'form': form,
                     'task': task,
                     'list_files': list_files,
-                    'homework': homework
+                    'homework': homework,
+                    'categories': categories
                 }
                 return render(request, "courses/task.html", context)
+
             else:
+                #If the work has not been delivered on time
+
                 unit = task.unit
                 course = unit.course
                 error = "You can't submit the task. Time's up."
+
                 list_files = list(Attachment.objects.filter(
                     homework=homework).values())
                 context = {
@@ -409,25 +535,33 @@ def review_task(request, task_id, homework_id):
                     'list_files': list_files,
                     'homework': homework,
                     'task': task,
-                    'error': error
+                    'error': error,
+                    'categories': categories
+
                 }
                 return render(request, "courses/time_finish.html", context)
 
         except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", 'categories': categories})
 
         except Homework.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})
 
     else:
         try:
-            now = timezone.now()
             homework = Homework.objects.get(id=homework_id)
             task = Task.objects.get(pk=task_id)
             instance = homework
+
+            #If the task is open
             if task.end_date > now:
+
                 form = HomeworkEditForm(
                     request.POST, request.FILES, user_id=request.user.id, task_id=task_id, instance=instance)
+
+                list_files = list(Attachment.objects.filter(
+                    homework=homework).values())
+
                 if form.is_valid():
                     files = request.FILES.getlist('file_field')
                     homework = form.save(commit=False)
@@ -438,6 +572,16 @@ def review_task(request, task_id, homework_id):
                         Attachment.objects.create(file=f, homework=homework)
                     return redirect('index')
 
+                context = {
+                    'form': form,
+                    'task': task,
+                    'list_files': list_files,
+                    'homework': homework,
+                    'categories': categories
+                }
+                return render(request, "courses/task.html", context)
+
+            #If the work has not been delivered on time
             else:
                 error = "You can't submit the task. Time's up."
                 unit = task.unit
@@ -449,22 +593,30 @@ def review_task(request, task_id, homework_id):
                     'list_files': list_files,
                     'homework': homework,
                     'task': task,
-                    'error': error
-
+                    'error': error,
+                    'categories': categories
                 }
                 return render(request, "courses/time_finish.html", context)
 
         except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Task doesn't exist", 'categories': categories})
 
         except Homework.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})
 
-
+@login_required(login_url='/login')
 def correction(request, user_id, task_id, homework_id):
+    #For the teacher to correct assignments
+    instance = get_object_or_404(Task, id=task_id)
+    categories = search_categories()
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
     if request.method == "GET":
         try:
-            task = Task.objects.get(pk=task_id)
+            task = instance
             homework = Homework.objects.get(pk=homework_id)
             instance = homework
             list_files = list(Attachment.objects.filter(
@@ -476,20 +628,18 @@ def correction(request, user_id, task_id, homework_id):
                 'form': form,
                 'task': task,
                 'list_files': list_files,
-                'homework': homework
+                'homework': homework,
+                'categories': categories
             }
             return render(request, "courses/correction.html", context)
 
-        except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
-
         except Homework.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})
 
     else:
         try:
             homework = Homework.objects.get(id=homework_id)
-            task = Task.objects.get(pk=task_id)
+            task = instance
             instance = homework
             form = CorrectionForm(
                 request.POST, user_id=user_id, task_id=task_id, instance=instance)
@@ -499,52 +649,76 @@ def correction(request, user_id, task_id, homework_id):
                 homework.save()
                 return redirect('index')
 
-        except Task.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Task doesn't exist", })
+            list_files = list(Attachment.objects.filter(
+                homework=homework).values())
+            list_files_json = json.dumps(list_files, cls=DjangoJSONEncoder)
+
+            context = {
+                'form': form,
+                'task': task,
+                'list_files': list_files,
+                'homework': homework,
+                'categories': categories
+            }
+            return render(request, "courses/correction.html", context)
 
         except Homework.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Homework doesn't exist", })
+            return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})
 
-
+@login_required(login_url='/login')
 def create_section(request, course_id, unit_id):
+    
+    #To create a section in a course unit
+    categories = search_categories()
+    instance = get_object_or_404(Unit, id=unit_id)
+
+    #If the request user is not the author of the unit
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
     if request.method == "GET":
         form = SectionForm(course_id=course_id, unit_id=unit_id)
-        return render(request, 'courses/teacher/create_section.html', {'form': form})
+        return render(request, 'courses/teacher/create_section.html', {'form': form, 'categories': categories})
+
     else:
-        try:
-            form = SectionForm(
-                request.POST, course_id=course_id, unit_id=unit_id)
-            unit = Unit.objects.get(pk=unit_id)
+        form = SectionForm(
+            request.POST, course_id=course_id, unit_id=unit_id)
+        unit = instance
 
-            if form.is_valid():
-                if Section.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
-                    error = 'A section already exists in the unit with that name'
-                    context = {
-                        'form': form,
-                        'course_id': course_id,
-                        'error': error
-                    }
-                    return render(request, 'courses/teacher/create_section.html', context)
-                else:
-                    section = form.save(commit=False)
-                    section.author = request.user
-                    section.unit = unit
-                    section.save()
-                    return redirect(reverse('course_details', args=[course_id]))
+        if form.is_valid():
+            if Section.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
+                error = 'A section already exists in the unit with that name'
+                context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error,
+                    'categories': categories
+                }
+                return render(request, 'courses/teacher/create_section.html', context)
+            else:
+                section = form.save(commit=False)
+                section.author = request.user
+                section.unit = unit
+                section.save()
+                return redirect(reverse('course_details', args=[course_id]))
 
-        except Unit.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Unit doesn't exist", })
+        return render(request, 'courses/teacher/create_section.html', {'form': form, 'categories': categories})
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-
+@login_required(login_url='/login')
 def edit_section(request, section_id):
+    #Edit a section
+    instance = get_object_or_404(Section, id=section_id)
+    categories = search_categories()
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
     if request.method == "GET":
-        instance = get_object_or_404(Section, id=section_id)
         form = SectionEditForm(instance=instance)
-        return render(request, 'courses/teacher/edit_section.html', {'form': form})
+        return render(request, 'courses/teacher/edit_section.html', {'form': form, 'categories': categories})
+
     else:
-        instance = get_object_or_404(Section, id=section_id)
         form = SectionEditForm(request.POST, instance=instance)
         if form.is_valid():
             section_exists = Section.objects.filter(
@@ -553,52 +727,66 @@ def edit_section(request, section_id):
                 error = 'A section already exists in the unit with that name'
                 context = {
                     'form': form,
-                    'error': error
+                    'error': error,
+                    'categories': categories
                 }
                 return render(request, 'courses/teacher/edit_section.html', context)
             else:
                 form.save()
                 return redirect(reverse('view_section', args=[section_id]))
+        return render(request, 'courses/teacher/edit_section.html', {'form': form, 'categories': categories})
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-
+@login_required(login_url='/login')
 def create_task(request, course_id, unit_id):
+    #Create a task
+    instance = get_object_or_404(Unit, id=unit_id)
+    #If the request user is not the author of the unit
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+    
+    categories = search_categories()
+
     if request.method == "GET":
         form = TaskForm(course_id=course_id, unit_id=unit_id)
-        return render(request, 'courses/teacher/create_task.html', {'form': form})
+        return render(request, 'courses/teacher/create_task.html', {'form': form, 'categories': categories})
     else:
-        try:
-            form = TaskForm(request.POST, course_id=course_id, unit_id=unit_id)
-            unit = Unit.objects.get(pk=unit_id)
+        
+        form = TaskForm(request.POST, course_id=course_id, unit_id=unit_id)
+        unit = Unit.objects.get(pk=unit_id)
 
-            if form.is_valid():
-                if Task.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
-                    error = 'A task already exists in the unit with that name'
-                    context = {
-                        'form': form,
-                        'course_id': course_id,
-                        'error': error
-                    }
-                    return render(request, 'courses/teacher/create_task.html', context)
-                else:
-                    task = form.save(commit=False)
-                    task.author = request.user
-                    task.unit = unit
-                    task.save()
-                    return redirect(reverse('course_details', args=[course_id]))
+        if form.is_valid():
+            if Task.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
+                error = 'A task already exists in the unit with that name'
+                context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error,
+                    'categories': categories
+                }
+                return render(request, 'courses/teacher/create_task.html', context)
+            else:
+                task = form.save(commit=False)
+                task.author = request.user
+                task.unit = unit
+                task.save()
+                return redirect(reverse('course_details', args=[course_id]))
 
-        except Unit.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Unit doesn't exist", })
+        return render(request, 'courses/teacher/create_task.html', {'form': form, 'categories': categories})
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-
+@login_required(login_url='/login')
 def edit_task(request, task_id):
+    #Edit a task
+
+    instance = get_object_or_404(Task, id=task_id)
+    categories = search_categories()
+
+    #If the request user is not the author of the task
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
     if request.method == "GET":
-        instance = get_object_or_404(Task, id=task_id)
         form = TaskEditForm(instance=instance)
-        return render(request, 'courses/teacher/edit_task.html', {'form': form})
+        return render(request, 'courses/teacher/edit_task.html', {'form': form, 'categories': categories})
     else:
         instance = get_object_or_404(Task, id=task_id)
         form = TaskEditForm(request.POST, instance=instance)
@@ -609,83 +797,102 @@ def edit_task(request, task_id):
                 error = 'A task already exists in the unit with that name'
                 context = {
                     'form': form,
-                    'error': error
+                    'error': error,
+                    'categories': categories
                 }
                 return render(request, 'courses/teacher/edit_task.html', context)
             else:
                 form.save()
                 return redirect(reverse('view_task', args=[task_id]))
 
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
+        return render(request, 'courses/teacher/edit_task.html', {'form': form, 'categories': categories})
 
-
+@login_required(login_url='/login')
 def enroll_course(request, course_id):
-    if request.method == "POST":
-        user = request.user
-        try:
-            course = Course.objects.get(pk=course_id)
-            if course.author != user:
-                course.students.add(user)
-                return redirect('course_details', course_id=course_id)
-            else:
-                error = 'You are the author of this course. You cannot enroll in it.'
-                context = {
-                    'course': course,
-                    'error': error
-                }
-                return render(request, 'courses/course.html', context)
+    #To enroll a course
+    categories = search_categories()
 
-        except Course.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Course doesn't exist", })
-    return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-
-def list_students(request, course_id):
     if request.method == "GET":
-        try:
-            course = Course.objects.get(pk=course_id)
-            students = course.students
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories })
+
+    user = request.user
+    try:
+        course = Course.objects.get(pk=course_id)
+        if course.author != user:
+            course.students.add(user)
+            return redirect('course_details', course_id=course_id)
+        else:
+            error = 'You are the author of this course. You cannot enroll in it.'
             context = {
                 'course': course,
-                'students': students
+                'error': error,
+                'categories': categories
             }
-            return render(request, 'courses/teacher/list_students.html', context)
-        except Course.DoesNotExist:
-            return render(request, "courses/error.html", {'error': "Course doesn't exist", })
+            return render(request, 'courses/course.html', context)
 
+    except Course.DoesNotExist:
+        return render(request, "courses/error.html", {'error': "Course doesn't exist", 'categories': categories})
 
-def mycourses(request):
-    if request.method == "POST":
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-    #Method GET
-    courses = Course.objects.filter(students__id = request.user.id)
+@login_required(login_url='/login')
+def list_students(request, course_id):
+    #List all students of the course
+    instance = get_object_or_404(Course, id=course_id)
     categories = search_categories()
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+    if request.method == "POST":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories })
+
+    course = instance
+    students = course.students
+    context = {
+        'course': course,
+        'students': students,
+        'categories': categories
+    }
+    return render(request, 'courses/teacher/list_students.html', context)
+
+@login_required(login_url='/login')
+def mycourses(request):
+    #Show courses to which the user is enrolled
+    categories = search_categories()
+
+    if request.method == "POST":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+
+    # Method GET
+    courses = Course.objects.filter(students__id=request.user.id)
     context = {
         'courses': courses,
         'categories': categories
     }
     return render(request, "courses/my_courses.html", context)
 
+@login_required(login_url='/login')
 def grades(request, course_id):
-    if request.method == "POST":
-        return render(request, "courses/error.html", {'error': "Method not allowed", })
-
-    #Method GET
-    units = Unit.objects.filter(course__id=course_id)
     categories = search_categories()
+    instance = get_object_or_404(Course, id=course_id)
+
+    #If the request user is not the author of the course
+    if request.user == instance.author:
+        return render(request, "courses/error.html", {'error': "You are the author", 'categories': categories})
+
+    if request.method == "POST":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+
+    # Method GET
+    units = Unit.objects.filter(course__id=course_id)
     context = {
         'units': units,
         'categories': categories
     }
 
     return render(request, "courses/grades.html", context)
- 
-
-
-# Collect the categories to display them in the navbar
-
 
 def search_categories():
+    # Collect the categories to display them in the navbar
     categories = Category.objects.all()
     return categories

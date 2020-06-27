@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegisterForm, UserLoginForm
 from django.contrib.auth import authenticate, login, logout
+from courses.views import search_categories
 
 
 # Create your views here.
@@ -52,7 +53,8 @@ def register(request):
             return render(request, template, {'form': form})
     else:
         form = RegisterForm()
-        return render(request, "users/register.html", {'form': form})
+        categories = search_categories()
+        return render(request, "users/register.html", {'form': form, 'categories': categories})
 
 def sign_in(request):
     if request.user.is_authenticated:
@@ -70,8 +72,10 @@ def sign_in(request):
                 login(request, user)
                 return redirect('/')
             else:
-                return render(request, "users/login.html", {'form': form, 'error_message': "Incorrect username or password. Please try again."})
-    return render(request, "users/login.html", {'form': form})
+                return render(request, "users/login.html", {'form': form, 'error': "Incorrect username or password. Please try again."})
+    
+    categories = search_categories()
+    return render(request, "users/login.html", {'form': form, 'categories': categories})
 
 def fun_logout(request):
     if request.user.is_authenticated:
