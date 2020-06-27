@@ -1,6 +1,12 @@
 {% extends 'courses/base.html' %}
 {% load static %}
 
+{% block style %}
+
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+{% endblock %}
 {% block main %}
 <div id="wrap">
     <div id="main">

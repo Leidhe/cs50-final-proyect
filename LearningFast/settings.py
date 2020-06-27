@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'courses.templatetags',
-
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -174,13 +173,21 @@ SOCIALACCOUNT_PROVIDERS = {
 # CKEDITOR
 CKEDITOR_CONFIGS = {
     'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline', 'Youtube'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source']
+        ],
+    
         'width': 'auto',
         'removePlugins': 'stylesheetparser',
         'extraPlugins': ','.join([
             'codesnippet',
             'div',
+            'youtube',
             'autolink',
-            'autoembed',
             'embedsemantic',
             'autogrow',
             # 'devtools',
@@ -195,4 +202,13 @@ CKEDITOR_CONFIGS = {
             'filebrowser',
         ]),
     },
+
+    'special': {
+        'toolbar': 'Special',
+        'toolbar_Special': [
+            ['Bold', 'Youtube'],
+        ],
+
+        'extraPlugins': ','.join(['youtube']),
+    }
 }
