@@ -5,22 +5,6 @@
 
 <link rel="stylesheet" href="{% static 'css/teacher.css' %}">
 
-<style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
-    }
-</style>
 {% endblock %}
 {% block main %}
 <div id="wrap">
@@ -37,13 +21,13 @@
             <h1 class="h1 mb-3 font-weight-normal">Courses</h1>
             {% if courses_created %}
             {% for course in courses_created %}
-            <a href="{% url 'course_details' course.id%}">
+            <a class="course-link bottom" href="{% url 'course_details' course.id%}">
                 <div class="media">
                     <img src="{{course.image.url}}" class="mr-3" alt="Image of course {{course.name}}" height="128"
                         width="128">
                     <div class="media-body">
-                        <h5 class="mt-0">{{course.name}}</h5>
-                        {{course.description}}
+                        <h3 class="mt-0">{{course.name}}</h3>
+                        <h6>{{course.description}}</h6>
                     </div>
                 </div>
             </a>

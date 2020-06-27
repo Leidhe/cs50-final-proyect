@@ -8,40 +8,39 @@
 <link rel="stylesheet" href="{% static 'css/teacher.css' %}">
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-<style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
 
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
-    }
-</style>
 {% endblock %}
 {% block main %}
 <div id="wrap">
-    <div id="main" class="container">
-        {% for unit in units %}
-        <h1>{{unit.name}}</h1>
-
-        {% for task in tasks|tasks_in_unit:unit.id %}
-        <h2>{{task.name}}</h2>
-        <span>Grade: {{grade|grade_task:task.id}}</span>
-
-        {% endfor %}
-        {% endfor %}
-
-        
-
-        
-
+    <div id="main">
+        <div class="container with-margin">
+            <h2 class="title-units">Grades</h2>
+            <table class="table table-bordered">
+                {% for unit in units %}
+                <tr>
+                    
+                    <td>
+                        {{unit.name}}
+                    </td>
+                    <td>
+                        <table class="table table-borderless">
+                            {% for task in tasks|tasks_in_unit:unit.id %}
+                            <tr>
+                                <td>
+                                    {{task.name}}
+                                </td>
+                                <td>
+                                    {{grade|grade_task:task.id}}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

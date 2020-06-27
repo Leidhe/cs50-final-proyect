@@ -278,8 +278,10 @@ def view_section(request, section_id):
     if request.method == "GET":
         try:
             section = Section.objects.get(pk=section_id)
+            course = section.unit.course
             context = {
-                'section':  section
+                'section':  section,
+                'course': course
             }
             return render(request, "courses/section.html", context)
 
@@ -292,6 +294,7 @@ def view_task(request, task_id):
         try:
             now = timezone.now()
             task = Task.objects.get(pk=task_id)
+            course = task.unit.course
             homework = Homework.objects.filter(
                 student=request.user, task=task_id)
 
@@ -307,6 +310,7 @@ def view_task(request, task_id):
                     'form': form,
                     'task': task,
                     'students': list_students,
+                    'course': course
                 }
                 return render(request, "courses/task.html", context)
 
@@ -642,6 +646,7 @@ def list_students(request, course_id):
             course = Course.objects.get(pk=course_id)
             students = course.students
             context = {
+                'course': course,
                 'students': students
             }
             return render(request, 'courses/teacher/list_students.html', context)

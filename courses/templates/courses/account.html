@@ -7,26 +7,11 @@
 <link rel="stylesheet" href="{% static 'css/teacher.css' %}">
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-<style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
 
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
-    }
-</style>
 {% endblock %}
 {% block main %}
 <div id="wrap">
-    <div id="main" class="container">
+    <div id="main" class="container with-margin">
         <h1>My Profile</h1>
         <hr>
         <div class="row">
@@ -42,15 +27,15 @@
             </div>
 
             <!-- edit form column -->
-            <div class="personal-info">
-                <h3>Personal info</h3>
+            <div class="personal-info col">
+                <h3 class="personal-info-title">Personal info</h3>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                         <div class="row">
-                            <div class="col d-flex">
+                            <div class="col-4">
                                 <label>First name:</label>
                             </div>
-                            <div class="col">
+                            <div>
                                 <span>{{user.first_name}}</span>
                             </div>
                         </div>
@@ -58,10 +43,10 @@
                     <li class="list-group-item">
                         <div class="row">
 
-                            <div class="col d-flex">
+                            <div class="col-4">
                                 <label>Last name:</label>
                             </div>
-                            <div class="col">
+                            <div>
                                 <span>{{user.last_name}}</span>
                             </div>
                         </div>
@@ -70,11 +55,11 @@
 
                         <div class="row">
 
-                            <div class="col d-flex">
+                            <div class="col-4">
                                 <label>Email:</label>
                             </div>
-                            <div class="col">
-                                <span>{{user.email}}</span>
+                            <div>
+                                <span style=>{{user.email}}</span>
                             </div>
                         </div>
                     </li>
@@ -82,10 +67,10 @@
 
                         <div class="row">
 
-                            <div class="col d-flex">
+                            <div class="col-4">
                                 <label>Username:</label>
                             </div>
-                            <div class="col">
+                            <div>
                                 <span>{{user.username}}</span>
                             </div>
                         </div>

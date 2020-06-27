@@ -3,40 +3,35 @@
 {% block style %}
 <link rel="stylesheet" href="{% static 'css/course.css' %}">
 
-<style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
-    }
-</style>
 {% endblock %}
 {% block main %}
 <div id="wrap">
     <div id="main">
-        <div class="container">
+        <div class="container with-margin">
             {% if courses %}
+            <h2 class="title-units"> My courses</h2>
             {% for course in courses %}
             <div class="card">
                 <h5 class="card-header">{{course.name}}</h5>
                 <div class="card-body">
-                    <h5 class="card-title">Special title treatment</h5>
                     <p class="card-text">{{course.description}}</p>
                     <a href="{% url 'course_details' course.id %}" class="btn btn-primary">View Course</a>
                 </div>
             </div>
             {% endfor %}
             {% else %}
-            <h1>You're not enrolled in any course. Enroll in one!</h1>
+            <h1 class="title-units">You're not enrolled in any course. Enroll in one!</h1>
+            <div class="button-center">
+
+                <a href="{% url 'index' %}" class="btn btn-primary">
+                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-left-short" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M7.854 4.646a.5.5 0 0 1 0 .708L5.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0z" />
+                        <path fill-rule="evenodd" d="M4.5 8a.5.5 0 0 1 .5-.5h6.5a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                    Go to categories</a>
+            </div>
             {% endif %}
         </div>
     </div>
