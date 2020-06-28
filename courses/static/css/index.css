@@ -7,6 +7,12 @@
     user-select: none;
 }
 
+.jumbotron {
+    background-size: cover;
+    color: white;
+}
+
+
 .category {
     box-shadow: inset 0px 1px 0px 0px #54a3f7;
     background: linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
@@ -91,7 +97,6 @@ a.right {
 .button-center {
     display: flex;
     justify-content: center;
-
 }
 
 .sidebar {
@@ -163,7 +168,7 @@ a.sections-tasks:hover {
     bottom: 180px;
 }
 
-.alert{
+.alert {
     text-align: center;
 }
 

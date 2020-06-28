@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from django.db.models import Q
 
 from django.conf import settings
 from django.contrib import messages
@@ -125,12 +126,10 @@ def search(request):
     text = request.POST.get("search")
     
     #Search by name or creator
-    courses_by_name = Course.objects.filter(name__contains=text)
-    courses_by_creator = Course.objects.filter(author__username__contains=text)
+    courses_by_name_or_creator = Course.objects.filter(Q(name__contains=text) | Q(author__username__contains=text))
 
     context = {
-        'courses_by_name': courses_by_name,
-        'courses_by_creator': courses_by_creator,
+        'courses_by_name_or_creator': courses_by_name_or_creator,
         'text': text,
         'categories': categories
     }
