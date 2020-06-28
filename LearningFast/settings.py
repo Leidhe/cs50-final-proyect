@@ -31,7 +31,6 @@ SECRET_KEY = "ji2=#2d-rcq9b0uc+!3=!99+w%x@ri8$_+-zlvm_)x0jbds^_0"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
