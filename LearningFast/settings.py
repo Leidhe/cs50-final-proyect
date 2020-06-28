@@ -19,7 +19,7 @@ AWS_STORAGE_BUCKET_NAME= os.getenv('AWS_STORAGE_BUCKET_NAME')
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['cs50-learningfast.herokuapp.com/']
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,7 +29,7 @@ ALLOWED_HOSTS = ['*']
 SECRET_KEY = "ji2=#2d-rcq9b0uc+!3=!99+w%x@ri8$_+-zlvm_)x0jbds^_0"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
