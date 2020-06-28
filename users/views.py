@@ -9,7 +9,6 @@ from courses.views import search_categories
 
 # Create your views here.
 
-
 def register(request):
     template = "users/register.html"
     if request.user.is_authenticated:

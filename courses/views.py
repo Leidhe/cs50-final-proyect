@@ -1,14 +1,16 @@
 import json
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
+from django.core.mail import BadHeaderError, send_mail, EmailMessage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.forms.models import model_to_dict
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views import View
@@ -233,12 +235,12 @@ def edit_course(request, course_id):
 
     #If the request user is not the author of the course
     if request.user != instance.author:
-        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories, 'course': instance})
 
 
     elif request.method == "GET":
         form = CourseEditForm(instance=instance)
-        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories})
+        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories, 'course': instance})
 
     else:
         form = CourseEditForm(request.POST or None,
@@ -248,8 +250,8 @@ def edit_course(request, course_id):
             context = {
                 'course': instance
             }
-            return render(request, 'courses/teacher/course_settings.html', context)
-        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories})
+            return redirect(reverse('course_details', args=[instance.id]))
+        return render(request, 'courses/teacher/edit_course.html', {'form': form, 'categories': categories, 'course': instance})
 
 
 @login_required(login_url='/login')
@@ -275,6 +277,10 @@ def course_details(request, course_id):
 def create_unit(request, course_id):
     # Create a unit inside of a course.
     course = get_object_or_404(Course, id=course_id)
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
 
     #If the request user is not the author of the course
     if request.user != course.author:
@@ -329,6 +335,10 @@ def edit_unit(request, course_id, unit_id):
     # Edit a unit.
     instance = get_object_or_404(Unit, id=unit_id)
     categories = search_categories()
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
 
 
     #If the request user is not the author of the course
@@ -338,7 +348,7 @@ def edit_unit(request, course_id, unit_id):
 
     if request.method == "GET":
         form = UnitEditForm(course_id=course_id, instance=instance)
-        return render(request, 'courses/teacher/edit_unit.html', {'form': form, 'categories': categories})
+        return render(request, 'courses/teacher/edit_unit.html', {'form': form, 'categories': categories, 'unit': instance})
 
 
     else:
@@ -466,6 +476,11 @@ def view_task(request, task_id):
     else:
         try:
             task = Task.objects.get(pk=task_id)
+            course_id = task.unit.course.id
+            bool = check_date_course(request, course_id)
+
+            if bool == False:
+                return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
 
             #If the task is still open
             if task.end_date > now:
@@ -520,7 +535,7 @@ def review_task(request, task_id, homework_id):
     #When the task has been sent once or more it is redirected here
     now = timezone.now()
     categories = search_categories()
-
+    
     
     if request.method == "GET":
         try:
@@ -580,6 +595,12 @@ def review_task(request, task_id, homework_id):
             homework = Homework.objects.get(id=homework_id)
             task = Task.objects.get(pk=task_id)
             instance = homework
+            course_id = task.unit.course.id
+            bool = check_date_course(request, course_id)
+
+            if bool == False:
+                return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
 
             #If the task is open
             if task.end_date > now:
@@ -672,6 +693,11 @@ def correction(request, user_id, task_id, homework_id):
             task = instance
             unit = task.unit
             course = unit.course
+            bool = check_date_course(request, course_id)
+
+            if bool == False:
+                return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
             instance = homework
             form = CorrectionForm(
                 request.POST, user_id=user_id, task_id=task_id, instance=instance)
@@ -693,6 +719,12 @@ def correction(request, user_id, task_id, homework_id):
             if form.is_valid():
                 homework = form.save(commit=False)
                 homework.graded = True
+                #Send a email when the task has been graded.
+                list_students = []
+                list_students.append(homework.student.email)
+                subject = "A new grade has been released"
+                description = f'The task {task.name} of the course {course.name} has been graded. Your final score is {homework.grade}. Check the task for more details.'
+                send_email(request, subject=subject, description=description, list_students_mails=list_students)
                 homework.save()
                 return redirect(reverse('course_details', args=[course.id]))
         
@@ -714,6 +746,11 @@ def create_section(request, course_id, unit_id):
     #To create a section in a course unit
     categories = search_categories()
     instance = get_object_or_404(Unit, id=unit_id)
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
 
     #If the request user is not the author of the unit
     if request.user != instance.author:
@@ -752,6 +789,10 @@ def edit_section(request, section_id):
     #Edit a section
     instance = get_object_or_404(Section, id=section_id)
     categories = search_categories()
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
 
     #If the request user is not the author of the course
     if request.user != instance.author:
@@ -783,11 +824,16 @@ def edit_section(request, section_id):
 def create_task(request, course_id, unit_id):
     #Create a task
     instance = get_object_or_404(Unit, id=unit_id)
+    bool = check_date_course(request, course_id)
+    categories = search_categories()
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
     #If the request user is not the author of the unit
     if request.user != instance.author:
         return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
     
-    categories = search_categories()
 
     if request.method == "GET":
         form = TaskForm(course_id=course_id, unit_id=unit_id)
@@ -796,6 +842,7 @@ def create_task(request, course_id, unit_id):
         
         form = TaskForm(request.POST, course_id=course_id, unit_id=unit_id)
         unit = Unit.objects.get(pk=unit_id)
+        course = unit.course
 
         if form.is_valid():
             if Task.objects.filter(name=form.cleaned_data['name'], unit=unit).exists():
@@ -809,9 +856,16 @@ def create_task(request, course_id, unit_id):
                 return render(request, 'courses/teacher/create_task.html', context)
             else:
                 task = form.save(commit=False)
+                list_students = all_students_mails(request, course.id)
+                subject = "New Task has been opened"
+                description = f'The task {task.name} of the course {course.name} has been opened. The task will be closed on the day {task.end_date}'
+                send_email(request, subject=subject, description=description, list_students_mails=list_students)
                 task.author = request.user
                 task.unit = unit
                 task.save()
+
+                #Send email to all students in the course advising that the task has been opened
+                
                 return redirect(reverse('course_details', args=[course_id]))
 
         return render(request, 'courses/teacher/create_task.html', {'form': form, 'categories': categories})
@@ -822,6 +876,10 @@ def edit_task(request, task_id):
 
     instance = get_object_or_404(Task, id=task_id)
     categories = search_categories()
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
 
     #If the request user is not the author of the task
     if request.user != instance.author:
@@ -948,7 +1006,147 @@ def grades(request, course_id):
 
     return render(request, "courses/grades.html", context)
 
+@login_required(login_url='/login')
+def delete_file(request):
+    categories = search_categories()
+    if request.method == "GET":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+    if request.is_ajax():
+        try:
+            file_id = request.POST.get('file_id')
+            file = Attachment.objects.get(pk=file_id)
+            file.delete()
+            return JsonResponse({'message': 'OK'})
+
+        except Attachment.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "File doesn't exist", 'categories': categories})
+    else:
+        return JsonResponse({'message': 'Failed'})
+
+@login_required(login_url='/login')
+def delete_course(request, course_id):
+    categories = search_categories()
+    instance = get_object_or_404(Course, id=course_id)
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+    if request.method == "GET":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+    
+    instance.delete()
+    return redirect("teacher")
+
+@login_required(login_url='/login')
+def delete_unit(request, unit_id):
+    categories = search_categories()
+    instance = get_object_or_404(Unit, id=unit_id)
+    course = instance.course
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+    if request.method == "GET":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+    
+    instance.delete()
+    return redirect(reverse("course_details", args=[course.id]))
+
+@login_required(login_url='/login')
+def delete_section(request, section_id):
+    categories = search_categories()
+    instance = get_object_or_404(Section, id=section_id)
+    unit = instance.unit
+    course = unit.course
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+    
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+    if request.method == "GET":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+    
+    instance.delete()
+    return redirect(reverse("course_details", args=[course.id]))
+
+@login_required(login_url='/login')
+def delete_task(request, task_id):
+    categories = search_categories()
+    instance = get_object_or_404(Task, id=task_id)
+    unit = instance.unit
+    course = unit.course
+    bool = check_date_course(request, course_id)
+
+    if bool == False:
+        return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
+
+    #If the request user is not the author of the course
+    if request.user != instance.author:
+        return render(request, "courses/error.html", {'error': "You are not the author", 'categories': categories})
+
+    if request.method == "GET":
+        return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
+    
+    instance.delete()
+    return redirect(reverse("course_details", args=[course.id]))
+
+
 def search_categories():
     # Collect the categories to display them in the navbar
     categories = Category.objects.all()
     return categories
+
+
+def send_email(request, subject, description, list_students_mails):
+    try:
+        email = EmailMessage(
+            subject,
+            description,
+            settings.EMAIL_HOST_USER,
+            list_students_mails
+        )
+        email.send()
+
+    except BadHeaderError:
+        context = {
+            'error': "An error has ocurred",
+        }
+        return render(request, "courses/error.html", context)
+
+def all_students_mails(course_id):
+    instance = get_object_or_404(Course, id=course_id)
+    course = instance
+    students = course.students
+    list_mails = []
+    for student in students.all():
+        list_mails.append(student.email)
+    return list_mails
+
+def check_date_course(request, course_id):
+    try:
+        course_date = Course.objects.get(pk=course_id).end_date
+        now = datetime.date(timezone.now())
+
+        if course_date < now:
+            print("aqui")
+            context = {
+                'error': "An error has ocurred",
+            }
+            return False
+        else:
+            pass
+    except Course.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Course doesn't exist", 'categories': categories})
+ 

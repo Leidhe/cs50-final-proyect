@@ -61,15 +61,18 @@
                     <h1 class="title-content"><strong>Content</strong></h1>
                     <div>
                         {{course.content|safe }}
-
                     </div>
-
                 </div>
                 <div class="col-md-4">
                     <div class="card mb-3" style="max-width: 20rem;">
                         <h3 class="card-header">Characteristics</h3>
+                        {% if course.image %}
                         <img style="height: 200px; width: 100%; display: block;" src="{{course.image.url}}"
                             alt="Card image">
+                        {% else %}
+                        <img style="height: 200px; width: 100%; display: block;" src="//placehold.it/100"
+                            alt="Card image">
+                        {% endif %}
                         <div class="card-body">
 
                             <ul class="list-group list-group-flush">

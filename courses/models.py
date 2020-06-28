@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from sorl.thumbnail import ImageField
 from ckeditor_uploader.fields import RichTextUploadingField
 from datetime import date
+from django.core.validators import MaxValueValidator
+
 
 # Create your models here.
 class Category(models.Model):
@@ -59,7 +61,7 @@ class Task(models.Model):
 class Homework(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    grade = models.IntegerField(default=0)
+    grade = models.PositiveIntegerField(validators=[MaxValueValidator(10),], null=True)
     graded = models.BooleanField(default=False)
     answer = RichTextUploadingField()
 

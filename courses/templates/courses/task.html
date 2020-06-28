@@ -5,12 +5,42 @@
 {% block main %}
 <div id="wrap">
     <div id="main">
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Delete Task</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <span>Do you really want to delete this task?</span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        <form action="{% url 'delete_task' task.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Yes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container with-margin">
             {% if task.author == request.user %}
+
+            <button type="button" style="float: right;" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
+                Delete
+            </button>
 
             <a href="{% url 'edit_task' task.id %}" class="btn btn-success right">
 
                 Edit task</a>
+            
+
+            
             {% endif %}
             <h1 class="title">{{task.name}}</h1>
             {% if error%}
@@ -87,30 +117,61 @@
 
         label.innerHTML = "Uploaded files"
 
-        var list = {{ list_files | safe}}
+        var list = {{ list_files | safe
+    }}
 
         var files = document.createElement("div");
-        files.appendChild(label);
+    files.appendChild(label);
 
     for (file in list) {
         var li = document.createElement("li");
         var a = document.createElement("a");
+        var button_delete = document.createElement("button");
+
+
+        button_delete.id = list[file].id
+        button_delete.className = "btn btn-sm btn-danger delete-button";
+        button_delete.innerHTML = "Delete"
+        button_delete.setAttribute('type', 'button')
+        li.className = "li"
 
         var string = list[file].file
         var prefix = {% get_media_prefix %}
-        var route = {% get_media_prefix %} + list[file].file
-        a.setAttribute('href', route)
+    var route = {% get_media_prefix %} + list[file].file
 
-        a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
+    a.setAttribute('href', route)
+    a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
 
-        li.appendChild(a);
-        files.appendChild(li);
+    li.appendChild(a);
+    li.appendChild(button_delete);
+    files.appendChild(li);
 
-    }
+        }
 
-    div.insertBefore(files, div.firstChild); 
+    div.insertBefore(files, div.firstChild);
 
-});
+
+    $('.delete-button').on('click', function () {
+        console.log($(this))
+        var id = $(this).attr('id');
+        const csrftoken = window.CSRF_TOKEN;
+
+        $.ajax({
+            url: "{% url 'delete_file' %}",
+            type: "POST",
+            data: { 'file_id': id },
+            beforeSend: function (request) {
+                request.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function (response) {
+                var button = document.getElementById(id)
+                var li = button.parentNode;
+                li.parentNode.removeChild(li)
+            }
+        });
+    });
+
+    });
 
 </script>
 

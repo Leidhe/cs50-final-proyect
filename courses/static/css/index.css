@@ -88,6 +88,12 @@ a.right {
     font-size: 20px;
 }
 
+.button-center {
+    display: flex;
+    justify-content: center;
+
+}
+
 .sidebar {
     margin: 0;
     padding: 0;
