@@ -1,12 +1,14 @@
+from datetime import datetime
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Button
 from django import forms
-from django.shortcuts import reverse
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
-from .models import Course, Section, Task, Unit, Homework
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from multiupload.fields import MultiFileField, MultiMediaField, MultiImageField
+from django.shortcuts import reverse
+from multiupload.fields import MultiFileField, MultiImageField, MultiMediaField
 
+from .models import Course, Homework, Section, Task, Unit
 
 
 class CourseForm(forms.ModelForm):
@@ -44,6 +46,8 @@ class CourseEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'edit_course', args=[self.instance.id])
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('course_details', args=[self.instance.id]))))
 
 
 class UnitForm(forms.ModelForm):
@@ -61,6 +65,8 @@ class UnitForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'create_unit', kwargs={'course_id': course_id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('course_details', args=[course_id]))))
 
 
 class UnitEditForm(forms.ModelForm):
@@ -78,6 +84,9 @@ class UnitEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'edit_unit', kwargs={'course_id': course_id, 'unit_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('course_details', args=[course_id]))))
+
 
 
 class SectionForm(forms.ModelForm):
@@ -96,6 +105,9 @@ class SectionForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'create_section', kwargs={'course_id': course_id, 'unit_id': unit_id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('course_details', args=[course_id]))))
+
 
 
 class SectionEditForm(forms.ModelForm):
@@ -112,6 +124,8 @@ class SectionEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'edit_section', kwargs={'section_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('view_section', args=[self.instance.id]))))
 
 
 class TaskForm(forms.ModelForm):
@@ -130,6 +144,9 @@ class TaskForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'create_task', kwargs={'course_id': course_id, 'unit_id': unit_id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('course_details', args=[course_id]))))
+
 
 
 class TaskEditForm(forms.ModelForm):
@@ -146,6 +163,9 @@ class TaskEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'edit_task', kwargs={'task_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('view_task', args=[self.instance.id]))))
+
 
 
 class HomeworkForm(forms.ModelForm):
@@ -185,6 +205,7 @@ class HomeworkEditForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'review_task', kwargs={'task_id': task_id, 'homework_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+        
 
 
 class CorrectionForm(forms.ModelForm):
@@ -203,7 +224,7 @@ class CorrectionForm(forms.ModelForm):
         self.helper.form_action = reverse(
             'correction', kwargs={'task_id': task_id, 'user_id': user_id, 'homework_id': self.instance.id})
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                             onclick="window.location.href = '{}';".format(reverse('view_task', args=[task_id]))))
 
 
-
-   

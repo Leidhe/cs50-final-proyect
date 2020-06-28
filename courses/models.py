@@ -28,6 +28,7 @@ class Course(models.Model):
     description = models.CharField(
         max_length=100, help_text="Write a description")
     content = RichTextUploadingField()
+    end_date = models.DateField(default=date.today)
     students = models.ManyToManyField(User, related_name="courses_students")
 
 class Unit(models.Model):

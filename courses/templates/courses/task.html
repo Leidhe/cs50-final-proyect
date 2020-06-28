@@ -87,24 +87,24 @@
 
         label.innerHTML = "Uploaded files"
 
-        var list = {{ list_files | safe
-    }}
+        var list = {{ list_files | safe}}
 
         var files = document.createElement("div");
-    files.appendChild(label);
+        files.appendChild(label);
 
     for (file in list) {
         var li = document.createElement("li");
         var a = document.createElement("a");
 
         var string = list[file].file
+        var prefix = {% get_media_prefix %}
         var route = {% get_media_prefix %} + list[file].file
-    a.setAttribute('href', route)
+        a.setAttribute('href', route)
 
-    a.innerHTML = (string).substring(8, string.length);
+        a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
 
-    li.appendChild(a);
-    files.appendChild(li);
+        li.appendChild(a);
+        files.appendChild(li);
 
     }
 

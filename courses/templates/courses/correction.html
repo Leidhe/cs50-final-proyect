@@ -5,7 +5,7 @@
 {% block main %}
 <div id="wrap">
     <div id="main">
-        <div class="container">
+        <div class="container with-margin">
 
             <h1 class="title">{{task.name}}</h1>
             {% if error%}
@@ -53,21 +53,21 @@
         var ul = document.querySelector("#list_files");
         var label = document.createElement("label");
 
-        var list = {{ list_files | safe
-    }}
+        var list = {{ list_files | safe}}
 
         for (file in list) {
-        var li = document.createElement("li");
-        var a = document.createElement("a");
+            var li = document.createElement("li");
+            var a = document.createElement("a");
 
-        var string = list[file].file
-        var route = {% get_media_prefix %} + list[file].file;
+            var string = list[file].file
+            var prefix = {% get_media_prefix %}
+            var route = {% get_media_prefix %} + list[file].file;
+            console.log(String(prefix).length)
+            a.setAttribute('href', route)
+            a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
 
-    a.setAttribute('href', route)
-    a.innerHTML = (string).substring(8, string.length);
-
-    li.appendChild(a);
-    ul.appendChild(li);
+            li.appendChild(a);
+            ul.appendChild(li);
         }
 });
 

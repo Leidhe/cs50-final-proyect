@@ -70,7 +70,6 @@ class UserEditForm(UserChangeForm):
                     raise forms.ValidationError(u'Please use a JPEG, '
                         'GIF or PNG image.')
 
-
             except AttributeError:
                 pass
 

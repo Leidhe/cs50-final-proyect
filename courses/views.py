@@ -526,6 +526,8 @@ def review_task(request, task_id, homework_id):
         try:
             task = Task.objects.get(pk=task_id)
             homework = Homework.objects.get(id=homework_id)
+            unit = task.unit
+            course = unit.course
 
             #If the task is open
             if task.end_date > now:
@@ -542,7 +544,8 @@ def review_task(request, task_id, homework_id):
                     'task': task,
                     'list_files': list_files,
                     'homework': homework,
-                    'categories': categories
+                    'categories': categories,
+                    'course': course
                 }
                 return render(request, "courses/task.html", context)
 
@@ -634,6 +637,8 @@ def correction(request, user_id, task_id, homework_id):
     #For the teacher to correct assignments
     instance = get_object_or_404(Task, id=task_id)
     categories = search_categories()
+    now = timezone.now()
+
 
     #If the request user is not the author of the course
     if request.user != instance.author:
@@ -665,19 +670,32 @@ def correction(request, user_id, task_id, homework_id):
         try:
             homework = Homework.objects.get(id=homework_id)
             task = instance
+            unit = task.unit
+            course = unit.course
             instance = homework
             form = CorrectionForm(
                 request.POST, user_id=user_id, task_id=task_id, instance=instance)
+            list_files = list(Attachment.objects.filter(
+                homework=homework).values())
+            list_files_json = json.dumps(list_files, cls=DjangoJSONEncoder)
+            
+            if task.end_date >= now:
+                context = {
+                    'form': form,
+                    'task': task,
+                    'error': 'The task is not yet concluded. You still cannot correct.',
+                    'list_files': list_files,
+                    'homework': homework,
+                    'categories': categories
+                }
+                return render(request, "courses/correction.html", context)
+
             if form.is_valid():
                 homework = form.save(commit=False)
                 homework.graded = True
                 homework.save()
-                return redirect('index')
-
-            list_files = list(Attachment.objects.filter(
-                homework=homework).values())
-            list_files_json = json.dumps(list_files, cls=DjangoJSONEncoder)
-
+                return redirect(reverse('course_details', args=[course.id]))
+        
             context = {
                 'form': form,
                 'task': task,
@@ -840,12 +858,25 @@ def enroll_course(request, course_id):
     if request.method == "GET":
         return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories })
 
+
     user = request.user
     try:
         course = Course.objects.get(pk=course_id)
+        now = timezone.now()
+
+        if course.end_date < now: 
+            error = 'The course has ended. You cannot enroll in it.'
+            context = {
+                'course': course,
+                'error': error,
+                'categories': categories
+            }
+            return render(request, 'courses/course.html', context)
+
         if course.author != user:
             course.students.add(user)
             return redirect('course_details', course_id=course_id)
+
         else:
             error = 'You are the author of this course. You cannot enroll in it.'
             context = {
