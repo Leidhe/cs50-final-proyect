@@ -225,8 +225,6 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = os.getenv('USER_EMAIL')
 EMAIL_HOST_PASSWORD = os.getenv('PASSWORD')
 
-#AWS
-
 
 DEFAULT_FILE_STORAGE = 'custom_storage.custom_azure.AzureMediaStorage'
 STATICFILES_STORAGE = 'custom_storage.custom_azure.AzureStaticStorage'
