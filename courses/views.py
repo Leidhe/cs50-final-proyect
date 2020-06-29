@@ -152,7 +152,7 @@ def search_by_category(request, category_id):
         courses = Course.objects.filter(categories=category)
         text = f'category {category.name}'
         context = {
-            'courses_by_name': courses,
+            'courses_by_name_or_creator': courses,
             'text': text,
             'categories': categories
         }
@@ -427,13 +427,14 @@ def view_task(request, task_id):
 
                 #List of students who have submitted homework (for teachers)
                 list_students = Homework.objects.filter(task=task)
-
+                list_files = []
                 context = {
                     'form': form,
                     'task': task,
                     'students': list_students,
                     'course': course,
-                    'categories': categories
+                    'categories': categories,
+                    'list_files': list_files
                 }
                 return render(request, "courses/task.html", context)
 
@@ -496,7 +497,7 @@ def view_task(request, task_id):
                     homework.save()
                     for f in files:
                         Attachment.objects.create(file=f, homework=homework)
-                    return redirect('index')
+                    return redirect(reverse('course_details', args=[course_id]))
                 
                 list_students = Homework.objects.filter(task=task)
                 course = task.unit.course
@@ -618,7 +619,7 @@ def review_task(request, task_id, homework_id):
                     homework.save()
                     for f in files:
                         Attachment.objects.create(file=f, homework=homework)
-                    return redirect('index')
+                    return redirect(reverse('course_details', args=[course_id]))
 
                 context = {
                     'form': form,
@@ -848,23 +849,23 @@ def create_task(request, course_id, unit_id):
                 error = 'A task already exists in the unit with that name'
                 context = {
                     'form': form,
-                    'course_id': course_id,
+                    'course_id': course.id,
                     'error': error,
                     'categories': categories
                 }
                 return render(request, 'courses/teacher/create_task.html', context)
             else:
                 task = form.save(commit=False)
-                list_students = all_students_mails(request, course.id)
+                list_students = all_students_mails(course_id=course.id)
                 subject = "New Task has been opened"
                 description = f'The task {task.name} of the course {course.name} has been opened. The task will be closed on the day {task.end_date}'
+                #Send email to all students in the course advising that the task has been opened
+
                 send_email(request, subject=subject, description=description, list_students_mails=list_students)
                 task.author = request.user
                 task.unit = unit
                 task.save()
 
-                #Send email to all students in the course advising that the task has been opened
-                
                 return redirect(reverse('course_details', args=[course_id]))
 
         return render(request, 'courses/teacher/create_task.html', {'form': form, 'categories': categories})
@@ -874,6 +875,7 @@ def edit_task(request, task_id):
     #Edit a task
 
     instance = get_object_or_404(Task, id=task_id)
+    course_id=instance.unit.course.id
     categories = search_categories()
     bool = check_date_course(request, course_id)
 
@@ -919,7 +921,7 @@ def enroll_course(request, course_id):
     user = request.user
     try:
         course = Course.objects.get(pk=course_id)
-        now = timezone.now()
+        now = datetime.date(timezone.now())
 
         if course.end_date < now: 
             error = 'The course has ended. You cannot enroll in it.'

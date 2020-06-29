@@ -2,6 +2,12 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+{% block style %}
+
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+{% endblock %}
 {% block main %}
 <div id="wrap">
     <div id="main">
@@ -117,11 +123,10 @@
 
         label.innerHTML = "Uploaded files"
 
-        var list = {{ list_files | safe
-    }}
+        var list = {{ list_files | safe}}
 
         var files = document.createElement("div");
-    files.appendChild(label);
+        files.appendChild(label);
 
     for (file in list) {
         var li = document.createElement("li");
@@ -136,17 +141,21 @@
         li.className = "li"
 
         var string = list[file].file
-        var prefix = {% get_media_prefix %}
-    var route = {% get_media_prefix %} + list[file].file
+        var prefix = '{% get_media_prefix %}'
+        var route = '{% get_media_prefix %}' + list[file].file;
 
-    a.setAttribute('href', route)
-    a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
+        console.log(string)
+        console.log(prefix)
+        console.log(route)
 
-    li.appendChild(a);
-    li.appendChild(button_delete);
-    files.appendChild(li);
+        a.setAttribute('href', route)
+        a.innerHTML = route.substring((prefix).length+8, route.length);
 
-        }
+        li.appendChild(a);
+        li.appendChild(button_delete);
+        files.appendChild(li);
+
+    }
 
     div.insertBefore(files, div.firstChild);
 

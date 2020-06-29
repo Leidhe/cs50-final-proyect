@@ -12,14 +12,11 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-AWS_ACCESS_KEY_ID= os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY= os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME= os.getenv('AWS_STORAGE_BUCKET_NAME')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-ALLOWED_HOSTS = ['cs50-learningfast.herokuapp.com/']
+ALLOWED_HOSTS = ['cs50-learningfast.herokuapp.com', '127.0.0.1']
 
 
 # Quick-start development settings - unsuitable for production
@@ -30,9 +27,6 @@ SECRET_KEY = "ji2=#2d-rcq9b0uc+!3=!99+w%x@ri8$_+-zlvm_)x0jbds^_0"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -56,6 +50,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'courses.templatetags',
     'storages',
+
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -146,14 +141,11 @@ USE_TZ = True
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles/'),
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
 
 CKEDITOR_UPLOAD_PATH = "media/"
 
@@ -187,12 +179,13 @@ CKEDITOR_CONFIGS = {
             ['Bold', 'Italic', 'Underline', 'Youtube'],
             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['Link', 'Unlink'],
-            ['RemoveFormat', 'Source']
+            ['RemoveFormat','Image','Source']
         ],
     
         'width': 'auto',
         'removePlugins': 'stylesheetparser',
         'extraPlugins': ','.join([
+            'uploadimage',
             'codesnippet',
             'div',
             'youtube',
@@ -234,11 +227,15 @@ EMAIL_HOST_PASSWORD = os.getenv('PASSWORD')
 
 #AWS
 
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'custom_storage.custom_azure.AzureMediaStorage'
+STATICFILES_STORAGE = 'custom_storage.custom_azure.AzureStaticStorage'
 
-import dj_database_url 
-prod_db  =  dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(prod_db)
+STATIC_LOCATION = "static"
+MEDIA_LOCATION = "media"
+
+AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
+AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
+

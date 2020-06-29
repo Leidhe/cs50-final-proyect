@@ -165,18 +165,13 @@ class TaskForm(forms.ModelForm):
         self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
                                      onclick="window.location.href = '{}';".format(reverse('course_details', args=[course_id]))))
 
-    def clean_end_date(self):
+    def clean_end_date(self, *args, **kwargs):
         end_date = self.cleaned_data['end_date']
-        course = Course.objects.get(pk=course_id)
-        course_date = course.end_date
-        now = datetime.date(timezone.now())
+        now = timezone.now()
         if end_date < now:
             raise forms.ValidationError(
                 'You cannot set a date earlier than today. Choose a valid date.')
         
-        elif course_date < end_date:
-            raise forms.ValidationError(
-                'You cannot set a date beyond the end of the course. Choose a valid date.')
         else:
             return end_date
 
@@ -200,16 +195,12 @@ class TaskEditForm(forms.ModelForm):
 
     def clean_end_date(self):
         end_date = self.cleaned_data['end_date']
-        course = Course.objects.get(pk=course_id)
-        course_date = course.end_date
-        now = datetime.date(timezone.now())
+        
+        now = timezone.now()
         if end_date < now:
             raise forms.ValidationError(
                 'You cannot set a date earlier than today. Choose a valid date.')
         
-        elif course_date < end_date:
-            raise forms.ValidationError(
-                'You cannot set a date beyond the end of the course. Choose a valid date.')
         else:
             return end_date
 
