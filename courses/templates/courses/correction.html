@@ -34,7 +34,7 @@
                 <p><strong>Answer:</strong> {{homework.answer | safe}}</p>
                 <p><strong>Attached files:</strong>
 
-                <ul id="list_files">
+                <ul id="list_files" style="margin-left: 10px">
 
                 </ul>
 
@@ -60,14 +60,16 @@
             var a = document.createElement("a");
 
             var string = list[file].file
-            var prefix = {% get_media_prefix %}
-            var route = {% get_media_prefix %} + list[file].file;
-            console.log(String(prefix).length)
+            var string = list[file].file
+            var prefix = '{% get_media_prefix %}'
+            var route = '{% get_media_prefix %}' + list[file].file;
+
             a.setAttribute('href', route)
-            a.innerHTML = (string).substring(String(prefix).length + 1, string.length);
+            a.innerHTML = route.substring((prefix).length+8, route.length);
 
             li.appendChild(a);
-            ul.appendChild(li);
+            list_files.appendChild(li);
+
         }
 });
 

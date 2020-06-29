@@ -18,7 +18,7 @@
                     <path fill-rule="evenodd" d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
                 </svg>
                 Create a new course</a>
-            <h1 class="h1 mb-3 font-weight-normal">Courses</h1>
+            <h1 class="h1 mb-3 font-weight-normal title-units">Courses</h1>
             {% if courses_created %}
             {% for course in courses_created %}
             <a class="course-link bottom" href="{% url 'course_details' course.id %}">
@@ -38,7 +38,7 @@
             </a>
             {% endfor %}
             {% else %}
-            <h3 class="h3 mb-3 font-weight-normal title">There is no course created, create one!</h3>
+            <h3 class="h3 mb-3 font-weight-normal title-nounits">There is no course created, create one!</h3>
             {% endif %}
         </div>
     </div>

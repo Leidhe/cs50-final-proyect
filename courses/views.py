@@ -693,7 +693,7 @@ def correction(request, user_id, task_id, homework_id):
             task = instance
             unit = task.unit
             course = unit.course
-            bool = check_date_course(request, course_id)
+            bool = check_date_course(request, course.id)
 
             if bool == False:
                 return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
@@ -854,6 +854,19 @@ def create_task(request, course_id, unit_id):
                     'categories': categories
                 }
                 return render(request, 'courses/teacher/create_task.html', context)
+            end_date = request.POST.get('end_date')
+
+            bool = check_date_course_task(request, course_id, end_date)
+            if bool == False:
+                error = 'The completion date of the course is earlier than the completion date of the task. Please enter a valid date.'
+                context = {
+                    'form': form,
+                    'course_id': course.id,
+                    'error': error,
+                    'categories': categories
+                }
+                return render(request, 'courses/teacher/create_task.html', context)
+
             else:
                 task = form.save(commit=False)
                 list_students = all_students_mails(course_id=course.id)
@@ -873,7 +886,6 @@ def create_task(request, course_id, unit_id):
 @login_required(login_url='/login')
 def edit_task(request, task_id):
     #Edit a task
-
     instance = get_object_or_404(Task, id=task_id)
     course_id=instance.unit.course.id
     categories = search_categories()
@@ -903,6 +915,19 @@ def edit_task(request, task_id):
                     'categories': categories
                 }
                 return render(request, 'courses/teacher/edit_task.html', context)
+
+            end_date = request.POST.get('end_date')
+
+            bool = check_date_course_task(request, course_id, end_date)
+            if bool == False:
+                error = 'The completion date of the course is earlier than the completion date of the task. Please enter a valid date.'
+                context = {
+                    'form': form,
+                    'course_id': course_id,
+                    'error': error,
+                    'categories': categories
+                }
+                return render(request, 'courses/teacher/create_task.html', context)
             else:
                 form.save()
                 return redirect(reverse('view_task', args=[task_id]))
@@ -1043,7 +1068,7 @@ def delete_course(request, course_id):
 def delete_unit(request, unit_id):
     categories = search_categories()
     instance = get_object_or_404(Unit, id=unit_id)
-    course = instance.course
+    course_id = instance.course.id
     bool = check_date_course(request, course_id)
 
     if bool == False:
@@ -1058,7 +1083,7 @@ def delete_unit(request, unit_id):
         return render(request, "courses/error.html", {'error': "Method not allowed", 'categories': categories})
     
     instance.delete()
-    return redirect(reverse("course_details", args=[course.id]))
+    return redirect(reverse("course_details", args=[course_id]))
 
 @login_required(login_url='/login')
 def delete_section(request, section_id):
@@ -1141,10 +1166,18 @@ def check_date_course(request, course_id):
         now = datetime.date(timezone.now())
 
         if course_date < now:
-            print("aqui")
-            context = {
-                'error': "An error has ocurred",
-            }
+            return False
+        else:
+            pass
+    except Course.DoesNotExist:
+            return render(request, "courses/error.html", {'error': "Course doesn't exist", 'categories': categories})
+ 
+def check_date_course_task(request, course_id, task_date):
+    try:
+        task_date_obj = datetime.date(datetime.strptime(task_date, '%Y-%m-%d %H:%M:%S'))
+        course_date = Course.objects.get(pk=course_id).end_date
+
+        if course_date < task_date_obj:
             return False
         else:
             pass

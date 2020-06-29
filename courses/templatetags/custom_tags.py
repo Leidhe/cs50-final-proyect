@@ -1,6 +1,8 @@
+from courses.models import Category, Course, Homework, Section, Task, Unit
 from django import template
-from courses.models import Category, Course, Unit, Section, Task, Homework
 from users.models import UserProfile
+from django.utils import timezone
+
 
 register = template.Library()
 
@@ -33,11 +35,14 @@ def avatar(students, student_id):
         
 @register.filter
 def grade_task(grade, task_id):
+    task = Task.objects.get(pk=task_id)
     homework = Homework.objects.filter(task__id=task_id)
     if homework:
         grade = homework[0].grade
-    else:
+        if grade is None:
+            grade = "Not graded"
+    elif task.end_date < timezone.now():
         grade = 0
+    else:
+        grade = "Not graded"
     return grade
-
-   

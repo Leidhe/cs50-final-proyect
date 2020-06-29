@@ -28,6 +28,9 @@ class CourseForm(forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.form_action = 'create_course'
         self.helper.add_input(Submit('submit', 'Save'))
+        self.helper.add_input(Button('cancel', 'Cancel', css_class='btn-danger',
+                                     onclick="window.location.href = '{}';".format(reverse('teacher'))))
+   
 
     def clean_end_date(self):
         end_date = self.cleaned_data['end_date']

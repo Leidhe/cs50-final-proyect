@@ -50,7 +50,6 @@
                     {% if sections|sections_in_unit:unit.id %}
                     <h4 class="section-task-title">Sections</h4>
 
-
                     {% for section in sections|sections_in_unit:unit.id %}
                     <li class="li-margin"><a class="sections-tasks"
                             href="{% url 'view_section' section.id %}">{{section.name}}</a></li>
@@ -89,7 +88,11 @@
             </div>
             {% endfor %}
             {% else %}
+            {% if course.author == request.user %}
             <h2 class="title-nounits"> There is no units. Add a new unit!</h2>
+            {% else %}
+            <h2 class="title-nounits"> There is no units. Return later!</h2>
+            {% endif %}
             {% endif %}
         </div>
     </div>

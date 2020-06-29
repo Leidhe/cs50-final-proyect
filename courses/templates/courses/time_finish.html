@@ -5,7 +5,7 @@
 {% block main %}
 <div id="wrap">
     <div id="main">
-        <div class="container">
+        <div class="container with-margin">
 
             <h1 class="title">{{task.name}}</h1>
             {% if error %}
@@ -20,16 +20,17 @@
             <div id="answer">
                 <p><strong>Student:</strong> {{request.user.first_name}} {{request.user.last_name}}</p>
                 <p><strong>Grade: </strong>
-                    {% if homework.graded %}
+                    
+                    {% if homework.graded == True %}
                     {{homework.grade}}
-                    {% elif homework.graded == "False" %}
+                    {% elif homework.graded == False %}
                     Not graded
                     {% else %}
                     0
                     {% endif %}
                 </p>
                 <p><strong>Answer:</strong> 
-                    {% if homework.graded %}
+                    {% if homework %}
                     {{homework.answer | safe}}
                     {% else %}
                     None
@@ -37,7 +38,7 @@
                 </p>
                 <p><strong>Attached files:</strong>
                 {% if list_files %}   
-                <ul id="list_files">
+                <ul id="list_files" style="margin-left: 10px;">
 
                 </ul>
                 {% else %}
@@ -70,7 +71,7 @@
         var a = document.createElement("a");
 
         var string = list[file].file
-        var route = {% get_media_prefix %} + list[file].file;
+        var route = "{% get_media_prefix %}" + list[file].file;
 
     a.setAttribute('href', route)
     a.innerHTML = (string).substring(8, string.length);

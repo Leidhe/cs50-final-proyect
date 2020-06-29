@@ -48,7 +48,7 @@
 
             
             {% endif %}
-            <h1 class="title">{{task.name}}</h1>
+            <h1 class="title-units">{{task.name}}</h1>
             {% if error%}
             <div class="alert alert-danger" role="alert">
                 {{ error }}
@@ -87,7 +87,7 @@
             {% else %}
             {% if students.all %}
             <h1>Students</h1>
-            <ul>
+            <ul style="margin-left: 10px;">
                 {% for homework in students.all %}
                 <li>
                     <a href="{% url 'correction' homework.student.id task.id homework.id %}">
@@ -133,20 +133,16 @@
         var a = document.createElement("a");
         var button_delete = document.createElement("button");
 
-
         button_delete.id = list[file].id
         button_delete.className = "btn btn-sm btn-danger delete-button";
-        button_delete.innerHTML = "Delete"
+        button_delete.innerHTML = '<i class="fa fa-trash" style="font-size:15px;" aria-hidden="true"></i>'
+
         button_delete.setAttribute('type', 'button')
         li.className = "li"
 
         var string = list[file].file
         var prefix = '{% get_media_prefix %}'
         var route = '{% get_media_prefix %}' + list[file].file;
-
-        console.log(string)
-        console.log(prefix)
-        console.log(route)
 
         a.setAttribute('href', route)
         a.innerHTML = route.substring((prefix).length+8, route.length);

@@ -47,8 +47,6 @@ urlpatterns = [
     path('delete_task/<int:task_id>', views.delete_task, name="delete_task"),
 
 
-
-
     path('list_students/<int:course_id>', views.list_students, name="list_students"),
 
 ]

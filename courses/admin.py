@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Category, Course, Unit, Section, Homework, Attachment, Task
 from users.models import UserProfile
+js = ('ckeditor.js', 'configuration-ckeditor.js')
 
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
