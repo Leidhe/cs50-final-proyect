@@ -10,14 +10,14 @@
 This project contains the main directory (called LearningFast) and two Django projects: Users and Courses
 
 ## LearningFast
-My web application for the final CS50 project is an application to help people create their own learning courses or register for any course in a topic and learn about it. It is based on platforms like edX or Udemy, but with different and simpler features than these.
+My web application for the final CS50 project is a Django application to help people create their own learning courses or register for any course in a topic and learn about it. It is based on platforms like edX or Udemy, but with different and simpler features than these.
 
 ### My project requirements:
 
 Search for courses: Users can search for courses by name or author, or they can select a topic to output courses related to that topic.
 
 Login, Registration and Logout: That users can log in, register and log out from the website.
-Create/Edit courses: Users must be able to create courses so that everyone can view and register for them.  These courses must have a name and an end date. Once that end date has passed, no one will be able to register for them.
+Create/Edit courses: Users must be able to create courses so that everyone can view and register for them. These courses must have a name and an end date. Once that end date has passed, no one will be able to register for them.
 
 Create/Edit units and sections: Within courses, the teacher (author) can create new units and/or sections and edit them whenever he wants, as long as the course is not finished
 
