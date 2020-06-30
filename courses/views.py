@@ -790,7 +790,8 @@ def edit_section(request, section_id):
     #Edit a section
     instance = get_object_or_404(Section, id=section_id)
     categories = search_categories()
-    bool = check_date_course(request, course_id)
+    course = instance.unit.course
+    bool = check_date_course(request, course.id)
 
     if bool == False:
         return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
