@@ -682,7 +682,7 @@ def correction(request, user_id, task_id, homework_id):
                 'homework': homework,
                 'categories': categories
             }
-            return render(request, "courses/correction.html", context)
+            return render(request, "courses/teacher/correction.html", context)
 
         except Homework.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})
@@ -714,7 +714,7 @@ def correction(request, user_id, task_id, homework_id):
                     'homework': homework,
                     'categories': categories
                 }
-                return render(request, "courses/correction.html", context)
+                return render(request, "courses/teacher/correction.html", context)
 
             if form.is_valid():
                 homework = form.save(commit=False)
@@ -735,7 +735,7 @@ def correction(request, user_id, task_id, homework_id):
                 'homework': homework,
                 'categories': categories
             }
-            return render(request, "courses/correction.html", context)
+            return render(request, "courses/teacher/correction.html", context)
 
         except Homework.DoesNotExist:
             return render(request, "courses/error.html", {'error': "Homework doesn't exist", 'categories': categories})

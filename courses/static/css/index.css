@@ -181,6 +181,20 @@ a.sections-tasks:hover {
     text-align: center;
 }
 
+.media {
+    background-color: #f3f3f3;
+    border: 1px solid #ddd;
+    font-size: 85%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 1rem;
+    margin-bottom: 3rem;
+}
+
+.courses {
+    padding: 3rem 1.5rem;
+}
+
 @media screen and (max-width: 500px) {
     .sidebar {
         width: 100%;

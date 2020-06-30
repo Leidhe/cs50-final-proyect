@@ -26,7 +26,7 @@ class Course(models.Model):
     name = models.CharField(max_length=64)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="course_author")
-    duration = models.PositiveIntegerField()
+    duration = models.PositiveIntegerField(help_text="Specify the time in hours")
     level = models.CharField(max_length=64, choices=LEVEL, default='beginner')
     language = models.CharField(max_length=64)
     image = models.ImageField(upload_to='images/courses/%Y/%m/%d/')
