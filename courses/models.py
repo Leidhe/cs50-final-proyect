@@ -18,11 +18,16 @@ class Category(models.Model):
 
 
 class Course(models.Model):
+    LEVEL=(
+        ('beginner', 'Beginner'),
+        ('medium', 'Medium'),
+        ('advanced', 'Advanced'),
+    )
     name = models.CharField(max_length=64)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="course_author")
-    duration = models.IntegerField()
-    level = models.CharField(max_length=64)
+    duration = models.PositiveIntegerField()
+    level = models.CharField(max_length=64, choices=LEVEL, default='beginner')
     language = models.CharField(max_length=64)
     image = models.ImageField(upload_to='images/courses/%Y/%m/%d/')
     categories = models.ManyToManyField(

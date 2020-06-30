@@ -11,13 +11,21 @@
             {% if courses %}
             <h2 class="title-units"> My courses</h2>
             {% for course in courses %}
-            <div class="card card-margin">
-                <h5 class="card-header">{{course.name}}</h5>
-                <div class="card-body">
-                    <p class="card-text">{{course.description}}</p>
-                    <a href="{% url 'course_details' course.id %}" class="btn btn-primary">View Course</a>
+            <a class="course-link bottom" href="{% url 'course_details' course.id %}">
+                <div class="media">
+                    {% if course.image %}
+                        <img style="height: 128px; width: 128px; display: block;" src="{{course.image.url}}"
+                            alt="Card image">
+                        {% else %}
+                        <img style="height: 128px; width: 128px; display: block;" src="//placehold.it/100"
+                            alt="Card image">
+                        {% endif %}
+                    <div class="media-body">
+                        <h3 class="mt-0 ml-2">{{course.name}}</h3>
+                        <h6 class="ml-2">{{course.description}}</h6>
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
             {% else %}
             <h1 class="title-units">You're not enrolled in any course. Enroll in one!</h1>
