@@ -96,6 +96,7 @@ def edit_account(request):
 
         return render(request, 'courses/edit_account.html', {'form': form, 'categories': categories})
 
+@login_required(login_url='/login')
 def change_password(request):
     #Change the password
     categories = search_categories()
@@ -106,7 +107,7 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('change_password')
+            return redirect(reverse('myaccount'))
         else:
             messages.error(request, 'Please correct the error below.')
     else:
