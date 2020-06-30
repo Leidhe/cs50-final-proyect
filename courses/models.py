@@ -35,8 +35,11 @@ class Course(models.Model):
     description = models.CharField(
         max_length=100, help_text="Write a description")
     content = RichTextUploadingField()
-    end_date = models.DateField(default=date.today)
+    end_date = models.DateField()
     students = models.ManyToManyField(User, related_name="courses_students")
+
+    def __str__(self):
+        return f"Course {self.id}: {self.name}"
 
 class Unit(models.Model):
     name = models.CharField(max_length=64)
@@ -44,6 +47,10 @@ class Unit(models.Model):
         User, on_delete=models.CASCADE, related_name="unit_author")
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="course_unit")
+
+    def __str__(self):
+        return f"Unit {self.id}: {self.name}"
+
 
 class Section(models.Model):
     name = models.CharField(max_length=64)
@@ -53,6 +60,9 @@ class Section(models.Model):
         Unit, on_delete=models.CASCADE, related_name="unit_section")
     content = RichTextUploadingField()
 
+    def __str__(self):
+        return f"Section {self.id}: {self.name}"
+
 class Task(models.Model):
     name = models.CharField(max_length=64)
     author = models.ForeignKey(
@@ -61,7 +71,11 @@ class Task(models.Model):
         Unit, on_delete=models.CASCADE, related_name="unit_task")
     content = RichTextUploadingField()
     students = models.ManyToManyField(User, through='Homework')
-    end_date = models.DateTimeField(default=date.today)
+    end_date = models.DateTimeField()
+
+    def __str__(self):
+        return f"Task {self.id}: {self.name}"
+
 
 class Homework(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -70,11 +84,14 @@ class Homework(models.Model):
     graded = models.BooleanField(default=False)
     answer = RichTextUploadingField()
 
+    def __str__(self):
+        return f"Homework {self.id}: Student:{self.student}"
+
 class Attachment(models.Model):
     file = models.FileField(upload_to='uploads')
     homework = models.ForeignKey(
         Homework, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.file.name
+        return f"{self.file.name}"
 

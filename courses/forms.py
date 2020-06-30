@@ -3,6 +3,7 @@ from datetime import datetime
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Submit
 from django import forms
+from django.forms.widgets import SelectDateWidget
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
@@ -13,10 +14,14 @@ from .models import Course, Homework, Section, Task, Unit
 
 
 class CourseForm(forms.ModelForm):
+    end_date = forms.DateField(widget=SelectDateWidget(
+        empty_label=("Choose Year", "Choose Month", "Choose Day"),))
     class Meta:
         model = Course
         fields = ('name', 'duration', 'level', 'language',
                   'image', 'categories', 'description', 'content', 'end_date')
+        
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,6 +50,8 @@ class CourseForm(forms.ModelForm):
 
 class CourseEditForm(forms.ModelForm):
     class Meta:
+        end_date = forms.DateField(widget=SelectDateWidget(
+        empty_label=("Choose Year", "Choose Month", "Choose Day"),))
         model = Course
         fields = ('name', 'duration', 'level', 'language',
                   'image', 'categories', 'description', 'content', 'end_date')
