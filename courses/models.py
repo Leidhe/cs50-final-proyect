@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from sorl.thumbnail import ImageField
 from ckeditor_uploader.fields import RichTextUploadingField
-from datetime import date
+from datetime import date, datetime
 from django.core.validators import MaxValueValidator
 
 
@@ -71,7 +71,7 @@ class Task(models.Model):
         Unit, on_delete=models.CASCADE, related_name="unit_task")
     content = RichTextUploadingField()
     students = models.ManyToManyField(User, through='Homework')
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(default=datetime.now, help_text='Format %Y-%m-%d %H:%M:%S')
 
     def __str__(self):
         return f"Task {self.id}: {self.name}"

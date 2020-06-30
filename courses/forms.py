@@ -157,6 +157,7 @@ class SectionEditForm(forms.ModelForm):
 
 
 class TaskForm(forms.ModelForm):
+    end_date = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M:%S'])
     class Meta:
         model = Task
         fields = ('name', 'content', 'end_date')
@@ -181,7 +182,6 @@ class TaskForm(forms.ModelForm):
         if end_date < now:
             raise forms.ValidationError(
                 'You cannot set a date earlier than today. Choose a valid date.')
-        
         else:
             return end_date
 
