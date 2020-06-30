@@ -1092,7 +1092,7 @@ def delete_section(request, section_id):
     instance = get_object_or_404(Section, id=section_id)
     unit = instance.unit
     course = unit.course
-    bool = check_date_course(request, course_id)
+    bool = check_date_course(request, course.id)
 
     if bool == False:
         return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
@@ -1114,7 +1114,7 @@ def delete_task(request, task_id):
     instance = get_object_or_404(Task, id=task_id)
     unit = instance.unit
     course = unit.course
-    bool = check_date_course(request, course_id)
+    bool = check_date_course(request, course.id)
 
     if bool == False:
         return render(request, "courses/error.html", {'error': "You cannot change the course once it has been concluded.", 'categories': categories})
