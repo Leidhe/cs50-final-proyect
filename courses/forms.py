@@ -49,9 +49,9 @@ class CourseForm(forms.ModelForm):
 
 
 class CourseEditForm(forms.ModelForm):
-    class Meta:
-        end_date = forms.DateField(widget=SelectDateWidget(
+    end_date = forms.DateField(widget=SelectDateWidget(
         empty_label=("Choose Year", "Choose Month", "Choose Day"),))
+    class Meta:
         model = Course
         fields = ('name', 'duration', 'level', 'language',
                   'image', 'categories', 'description', 'content', 'end_date')

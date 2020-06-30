@@ -19,9 +19,9 @@ Search for courses: Users can search for courses by name or author, or they can 
 Login, Registration and Logout: That users can log in, register and log out from the website.
 Create/Edit courses: Users must be able to create courses so that everyone can view and register for them. These courses must have a name and an end date. Once that end date has passed, no one will be able to register for them.
 
-Create/Edit units and sections: Within courses, the teacher (author) can create new units and/or sections and edit them whenever he wants, as long as the course is not finished
+Create/Edit/Delete units and sections: Within courses, the teacher (author) can create new units and/or sections and edit them whenever he wants, as long as the course is not finished.
 
-Create/Edit tasks:  The teacher can create tasks that the students will have to do and then upload the files needed to complete that task.  It should have a completion date, and when it is finished no one should be able to upload more files. When the assignment is created, an email should be sent to all students in the course advising that an assignment has been opened.
+Create/Edit tasks/Delete:  The teacher can create tasks that the students will have to do and then upload the files needed to complete that task.  It should have a completion date, and when it is finished no one should be able to upload more files. When the assignment is created, an email should be sent to all students in the course advising that an assignment has been opened.
 
 Rate tasks: The teacher must be able to rate the assignment once the completion time is over.When an assignment is graded, an email should be sent to the student concerned showing their grade.
 
