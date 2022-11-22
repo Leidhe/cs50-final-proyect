@@ -30,7 +30,7 @@ jmespath==0.10.0
 msrest==0.6.17
 msrestazure==0.6.3
 oauthlib==3.1.0
-Pillow==7.1.2
+Pillow==9.3.0
 psycopg2==2.8.5
 pycparser==2.20
 PyJWT==1.7.1
